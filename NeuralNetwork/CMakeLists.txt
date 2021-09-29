@@ -8,6 +8,7 @@ set(PROJECT_HEADERS
         )
 
 set(PROJECT_SOURCES
+        main.c
         Network.c
         )
 

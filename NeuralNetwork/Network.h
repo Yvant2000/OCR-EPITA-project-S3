@@ -2,7 +2,10 @@
 // Created by Yves-Antoine on 29/09/2021.
 //
 
-#ifndef OSR_EPITA_PROJECT_S3_NETWORK_H
-#define OSR_EPITA_PROJECT_S3_NETWORK_H
+#ifndef OCR_EPITA_PROJECT_S3_NETWORK_H
+#define OCR_EPITA_PROJECT_S3_NETWORK_H
 
-#endif //OSR_EPITA_PROJECT_S3_NETWORK_H
+struct Network;
+Network * create_network();
+
+#endif //OCR_EPITA_PROJECT_S3_NETWORK_H
