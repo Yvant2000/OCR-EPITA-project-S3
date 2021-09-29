@@ -5,11 +5,13 @@ set(CMAKE_C_STANDARD 11)
 
 set(PROJECT_HEADERS
         Network.h
+        vector.h
         )
 
 set(PROJECT_SOURCES
         main.c
         Network.c
+        vector.c
         )
 
 add_executable(OCR ${PROJECT_SOURCES} ${PROJECT_HEADERS})
