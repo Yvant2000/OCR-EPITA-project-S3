@@ -4,11 +4,11 @@
 
 # include <stdlib.h>
 # include <math.h>
-
+#include <stdio.h>
 
 
 typedef struct Neuron{
-    float biases;
+    float bias;
     short num_weight;
     float * weights; // weights length is num_weight;
 }Neuron;
@@ -16,12 +16,12 @@ typedef struct Neuron{
 Neuron * create_neuron(short num_weights){
     Neuron * neuron = (Neuron *) malloc(sizeof (Neuron));
 
-    float weights[num_weights];
+    float * weights = malloc(sizeof (float) * num_weights);
     for(short weight_index = 0; weight_index < num_weights; weight_index++){
         weights[weight_index] = 0.5f;
     }
 
-    neuron -> biases = 0.5f;
+    neuron -> bias = 0.5f;
     neuron -> num_weight = num_weights;
     neuron -> weights = weights;
 
@@ -37,7 +37,7 @@ typedef struct Layer{
 Layer * create_layer(short size, short prev_size){
     Layer * layer = (Layer *) malloc(sizeof (Layer));
 
-    Neuron * neurons[size];
+    Neuron ** neurons = malloc(sizeof (Neuron) * size);
     for(short neuron_index = 0; neuron_index < size ; neuron_index++)
         neurons[neuron_index] = create_neuron(prev_size);
 
@@ -53,9 +53,9 @@ typedef struct Network{
 }Network;
 
 Network * create_network(const short sizes[], short num_layers){
-    struct Network * network = (Network *) malloc(sizeof(Network));
+    Network * network = (Network *) malloc(sizeof(Network));
 
-    Layer * layers[num_layers];
+    Layer ** layers = malloc(sizeof (Layer) * num_layers);
     short prev = 0;
     for(short layer_index = 0 ; layer_index < num_layers; layer_index++){
         layers[layer_index] = create_layer(sizes[layer_index], prev);
@@ -72,25 +72,58 @@ float sigmoid(float z){
     return 1.0f / (1.0f + expf(-z));
 }
 
+void print_network(Network * network){
+    short num_layer = network -> num_layers;
+    printf("Network < (length : %hd)", num_layer);
+    for (short layer_index = 0; layer_index < num_layer; layer_index++){
+        Layer * layer = network -> layers[layer_index];
+        short size = layer -> size;
+        printf("\n    Layer [ (size : %hd)", size);
+        for (short neuron_index = 0; neuron_index < size; neuron_index++){
+            Neuron * neuron = layer -> neurons[neuron_index];
+            short num_weight = neuron -> num_weight;
+            printf("\n        Neuron { (bias : %f - links : %hd)\n                "
+                   "(\n                    %f", neuron -> bias, num_weight, neuron -> weights[0]);
+            for (short weight_index = 1; weight_index < num_weight; weight_index++)
+                printf(",\n                    %f", neuron -> weights[weight_index]);
+            printf("\n                )\n        }");
+        }
+        printf("\n    ]");
+    }
+    printf("\n>\n");
+}
+
 
 float * feed_forward(Network * network, float inputs[]){
 
-    ///// We admit that the size of inputs is the size of the first layer
-    float * output = malloc(sizeof (float)* network -> layers[0] -> size);
+    float * prev_output;
+    float * next_output = inputs;
 
-    float * prev = inputs;
-    float * next;
+    short num_layer = network -> num_layers;
+    for (short layer_index = 1; layer_index < num_layer; layer_index++){
+        // We compute the output of the layers (but not the first layer)
 
-    // short output_layer_size = network -> layers[network -> num_layers - 1] -> size;
-    for (int layer_index = 0; layer_index < network -> num_layers; layer_index++){
         Layer * layer = network -> layers[layer_index];
         Neuron ** neurons = layer -> neurons;
         short num_neurons = layer -> size;
 
-        //for ()
+        prev_output = next_output;  // next become prev,and we create a new next
+        next_output = malloc(sizeof (float) * num_neurons);
+
+        for (short neuron_index = 0; neuron_index < num_neurons; neuron_index++){
+            Neuron * neuron = neurons[neuron_index];
+            float * weights = neuron -> weights;
+
+            float sum = 0;
+            short num_weight = neuron -> num_weight;
+            for (short weight_index = 0; weight_index < num_weight; weight_index++)
+                sum += weights[weight_index] * prev_output[weight_index];
+
+            next_output[neuron_index] = sigmoid(neuron -> bias + sum);
+        }
 
     }
 
-    return output;
+    return next_output;
 }
 

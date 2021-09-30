@@ -7,5 +7,7 @@
 
     typedef struct Network Network;
     Network * create_network(const short sizes[], short num_layers);
+    float * feed_forward(Network * network, float inputs[]);
+    void print_network(Network * network);
 
 #endif //OCR_EPITA_PROJECT_S3_NETWORK_H
