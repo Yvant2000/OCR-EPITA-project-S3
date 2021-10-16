@@ -69,12 +69,12 @@ Network * create_network(const size_t sizes[], size_t num_layers){
 }
 
 float sigmoid(float z){
-    return 1.0f / (1.0f + expf(-z));
+    return 1.f / (1.f + expf(-z));
 }
 
 float sigmoid_prime(float z){
     float exp_minus_z = expf(-z);
-    return 1.0f / ( (1.0f/exp_minus_z) + 2.0f + exp_minus_z); // Same result than "sigmoid(z)*(1.0f-sigmoid(z))" but faster
+    return 1.f / ( (1.f/exp_minus_z) + 2.f + exp_minus_z); // Same result than "sigmoid(z)*(1.0f-sigmoid(z))" but faster
 }
 
 
@@ -198,11 +198,47 @@ void update_mini_batch(Network * network,
                        size_t mini_batch_index, size_t mini_batch_size,
                        float eta){
 
+    size_t num_layers = network -> num_layers;
+    for(size_t layer_index = 0; layer_index < num_layers; layer_index++){
+        Layer * layer = network -> layers[layer_index];
+
+        size_t layer_size = layer -> size;
+        for(size_t neuron_index = 0; neuron_index < layer_size; neuron_index++){
+            Neuron * neuron = layer -> neurons[neuron_index];
+            size_t num_weight = neuron -> num_weight;
+
+            float nabla_bias = 0.f;   // init nabla bias to 0
+            float * nabla_weights = calloc(num_weight, sizeof(float));  // init nabla weights to 0
+
+            size_t mini_batch_max = mini_batch_index + mini_batch_size;
+            for(size_t data_index = mini_batch_index; (data_index < mini_batch_max) && (data_index < training_data_size); data_index++){
+                float delta_bias = 0.f; // TODO compute delta_bias
+                float * delta_weights = malloc(sizeof (float) * num_weight); //TODO compute delta_weights
+
+                nabla_bias += delta_bias; // add delta to nabla
+                for (size_t weight_index = 0; weight_index < num_weight; weight_index++)
+                    nabla_weights[weight_index] += delta_weights[weight_index]; // add delta to nabla
+
+                free(delta_weights);
+            }
+
+            neuron -> bias -= (eta / (float)mini_batch_size) * nabla_bias;  // update neuron's bias to nabla_bias
+            for (size_t weight_index = 0; weight_index < num_weight; weight_index++)  // update neuron's weights to nabla_weights
+                neuron -> weights[weight_index] -= (eta / (float)mini_batch_size) * nabla_weights[weight_index];
+
+            free(nabla_weights);
+        }
+    }
+
+
 }
 
 void train_network(Network * network,
                    float ** input_data, float ** expected_output, size_t training_data_size,
                    unsigned short epochs, size_t mini_batch_size, float eta){
+    /*
+     * Train the neural network using mini-batch stochastic gradient descent.
+     */
 
     for (unsigned short step = 1; step <= epochs; step++){
         shuffle_data(input_data, expected_output, training_data_size);

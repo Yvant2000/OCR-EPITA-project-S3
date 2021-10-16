@@ -17,10 +17,10 @@ void train_for_xor(Network * network){
             malloc(size_of_float * 2),
             malloc(size_of_float * 2),
     };
-    input_data[0][0] = 0.0f; input_data[0][1] = 0.0f;
-    input_data[1][0] = 1.0f; input_data[1][1] = 0.0f;
-    input_data[2][0] = 0.0f; input_data[2][1] = 1.0f;
-    input_data[3][0] = 1.0f; input_data[3][1] = 1.0f;
+    input_data[0][0] = 0.f; input_data[0][1] = 0.f;
+    input_data[1][0] = 1.f; input_data[1][1] = 0.f;
+    input_data[2][0] = 0.f; input_data[2][1] = 1.f;
+    input_data[3][0] = 1.f; input_data[3][1] = 1.f;
 
     float * expected_output[4] = {
             malloc(size_of_float),
@@ -28,10 +28,10 @@ void train_for_xor(Network * network){
             malloc(size_of_float),
             malloc(size_of_float)
     };
-    expected_output[0][0] = 0.0f;
-    expected_output[1][0] = 1.0f;
-    expected_output[2][0] = 1.0f;
-    expected_output[3][0] = 0.0f;
+    expected_output[0][0] = 0.f;
+    expected_output[1][0] = 1.f;
+    expected_output[2][0] = 1.f;
+    expected_output[3][0] = 0.f;
 
     train_network(network, input_data, expected_output, training_data_size, 30, 1, 0.3f);
 }
@@ -45,7 +45,7 @@ int main(){
 
     train_for_xor(network);
 
-    float inputs[] = {1.0f, 1.0f};
+    float inputs[] = {1.f, 1.f};
     float * test_output = feed_forward(network, inputs);
 
      for(int i = 0;i < network -> layers[network -> num_layers - 1] -> size;i++)
