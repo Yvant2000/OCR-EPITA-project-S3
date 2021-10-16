@@ -193,6 +193,9 @@ void shuffle_data(float ** input_data, float ** expected_output, size_t training
     }
 }
 
+void compute_delta(float * input_data, float * expected_output, float * delta_bias, float * delta_weights, size_t num_weight){
+}
+
 void update_mini_batch(Network * network,
                        float ** input_data, float ** expected_output, size_t training_data_size,
                        size_t mini_batch_index, size_t mini_batch_size,
@@ -212,8 +215,10 @@ void update_mini_batch(Network * network,
 
             size_t mini_batch_max = mini_batch_index + mini_batch_size;
             for(size_t data_index = mini_batch_index; (data_index < mini_batch_max) && (data_index < training_data_size); data_index++){
-                float delta_bias = 0.f; // TODO compute delta_bias
-                float * delta_weights = malloc(sizeof (float) * num_weight); //TODO compute delta_weights
+                float delta_bias = 0.f;
+                float * delta_weights = calloc(num_weight, sizeof(float));
+
+                compute_delta(input_data[data_index], expected_output[data_index], &delta_bias, delta_weights, num_weight); // we compute the value of deltas
 
                 nabla_bias += delta_bias; // add delta to nabla
                 for (size_t weight_index = 0; weight_index < num_weight; weight_index++)
