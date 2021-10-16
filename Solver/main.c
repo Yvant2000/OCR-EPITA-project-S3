@@ -13,7 +13,6 @@ int main(int argc, char **argv)
     int *matrix = malloc(sizeof(int) * 81);
     matrix = parse_file(argv[1]);
     solve_1(matrix,grid1,argv[2]);
-    
     free(grid1);
     free(matrix);
     return 0;

@@ -87,21 +87,15 @@ void write_to_file(char *file_name, int *grid)
             {
                 char c = ' ';
                 line[k] = c;
-                // printf("char %c\n",line[k]);
                 k++;
             }
             char c = grid[(i * 9) + j] + '0';
 
             line[k] = c;
-            // printf("char %c\n",line[k]);
             k++;
         }
         line[11] = '\n';
         line[12] = 0;
-        for (size_t i = 0; i < 12; i++)
-        {
-            printf("char %c\n", line[i]);
-        }
         fputs(line, fp);
         free(line);
         if ((i+1) % 3 == 0 && i != 0)
@@ -118,13 +112,11 @@ void write_to_file(char *file_name, int *grid)
             {
                 char c = ' ';
                 line[k] = c;
-                // printf("char %c\n",line[k]);
                 k++;
             }
             char c = grid[72 + j] + '0';
 
             line[k] = c;
-            // printf("char %c\n",line[k]);
             k++;
         }
         line[11] = 0;
@@ -193,7 +185,5 @@ void solve_1(int *grid, int *coppy, char *solved)
         coppy[i] = grid[i];
     }
     write_to_file(solved, coppy);
-    print_sudoku_1(grid);
-
     return;
 }
