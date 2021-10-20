@@ -77,7 +77,7 @@ void write_to_file(char *file_name, int *grid)
         printf("Unable to create file.\n");
         exit(EXIT_FAILURE);
     }
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 9; i++)
     {
         int k = 0;
         char *line = malloc(sizeof(char) * 13);
@@ -98,30 +98,12 @@ void write_to_file(char *file_name, int *grid)
         line[12] = 0;
         fputs(line, fp);
         free(line);
-        if ((i+1) % 3 == 0 && i != 0)
+        if ((i+1) % 3 == 0 && i != 0 && i !=8)
         {
             fputc('\n',fp);
         }
 
     }
-    int k = 0;
-        char *line = malloc(sizeof(char) * 12);
-        for (int j = 0; j < 9; j++)
-        {
-            if (j % 3 == 0 && j != 0)
-            {
-                char c = ' ';
-                line[k] = c;
-                k++;
-            }
-            char c = grid[72 + j] + '0';
-
-            line[k] = c;
-            k++;
-        }
-        line[11] = 0;
-        fputs(line, fp);
-        free(line);
     fclose(fp);
 }
 
