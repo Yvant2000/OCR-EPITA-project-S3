@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <math.h>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
 
 
 #ifndef ROTATION_H
