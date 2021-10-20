@@ -33,7 +33,7 @@ void train_for_xor(Network * network){
     expected_output[2][0] = 1.f;
     expected_output[3][0] = 0.f;
 
-    train_network(network, input_data, expected_output, training_data_size, 30, 1, 0.3f);
+    train_network(network, input_data, expected_output, training_data_size, 30, 2, 0.3f);
 }
 
 
@@ -44,6 +44,8 @@ int main(){
     Network * network = create_network(sizes, 3);
 
     train_for_xor(network);
+
+    printf("\n");
 
     float inputs[] = {1.f, 1.f};
     float * test_output = feed_forward(network, inputs);

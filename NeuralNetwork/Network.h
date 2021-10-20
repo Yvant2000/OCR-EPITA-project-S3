@@ -9,7 +9,7 @@
 
     typedef struct Layer{
         size_t size;
-        Neuron ** neurons; // neurons length is size
+        Neuron ** neurons;
     }Layer;
 
     typedef struct Network{
@@ -20,9 +20,9 @@
     Network * create_network(const size_t sizes[], size_t num_layers);
     float * feed_forward(Network * network, float inputs[]);
     void print_network(Network * network);
-    void train_network(Network * network,
-                       float ** input_data, float ** expected_output, size_t training_data_size,
-                       unsigned short epochs, size_t mini_batch_size, float eta
-                       );
+    void train_network(
+            Network * network,
+            float ** input_data, float ** expected_output, size_t training_data_size,
+            unsigned short epochs, size_t mini_batch_size, float eta);
 
 #endif //OCR_EPITA_PROJECT_S3_NETWORK_H
