@@ -96,29 +96,32 @@ void print_network(Network * network){
             printf("\n        Neuron { ");
             if (num_weight){
                 printf("(bias : %f - links : %zu)\n                <\n                    %f",
-                       neuron -> bias, num_weight, neuron -> weights[0]
-                       );
+                       neuron -> bias, num_weight, neuron -> weights[0]);
 
                 for (size_t weight_index = 1; weight_index < num_weight; weight_index++)
                     printf(",\n                    %f", neuron -> weights[weight_index]);
 
                 printf("\n                >\n       ");
-            }
-            else
+            } else
                 printf("INPUT");
             printf(" }");
-        }
-        printf("\n    ]");
-    }
-    printf("\n)\n");
+        } printf("\n    ]");
+    } printf("\n)\n");
 } // print_network
 
 
-float * feed_forward__(Network * network, float inputs[], float ** zs){
+float * feed_forward__(Network * network, float const inputs[], float ** zs){
 
-    float * next_output = inputs;
+    int save_z = zs != NULL;
 
     size_t num_layer = network -> num_layers;
+
+
+    float * next_output = malloc(sizeof (float) * network -> layers[0] -> size);
+    for(size_t input_index = 0; input_index < network -> layers[0] -> size; input_index++)
+        next_output[input_index] = inputs[input_index]; // working on a new list, so we copy the argument "inputs"
+
+
     for (size_t layer_index = 1; layer_index < num_layer; layer_index++){
         // We compute the output of the layers (but not the first layer)
 
@@ -129,7 +132,7 @@ float * feed_forward__(Network * network, float inputs[], float ** zs){
         float * prev_output = next_output;  // next become prev,and we create a new next
         next_output = malloc(sizeof (float) * num_neurons);
 
-        if (zs != NULL) // If needed, we get zs
+        if (save_z) // If needed, we get zs
             zs[layer_index] = malloc(sizeof (float *) * num_neurons);
 
 
@@ -138,16 +141,16 @@ float * feed_forward__(Network * network, float inputs[], float ** zs){
             float * weights = neuron -> weights;
 
 
-            float sum = 0;
+            float sum = 0; // compute the sum of weight * output for each weight
             size_t num_weight = neuron -> num_weight;
             for (size_t weight_index = 0; weight_index < num_weight; weight_index++)
-                sum += weights[weight_index] * prev_output[weight_index];
+                sum += (weights[weight_index] * prev_output[weight_index]);
 
-            float z = neuron -> bias + sum;
+            float z = neuron -> bias + sum; // z  = bias + Σ {n = 0; n-> len(w)} w[n] * output[a]
 
             next_output[neuron_index] = sigmoid(z);
 
-            if (zs != NULL) // If needed, we get zs (last use of z)
+            if (save_z) // If needed, we get zs (last use of z)
                 zs[layer_index][neuron_index] = z;
         }
         free(prev_output);
@@ -161,16 +164,19 @@ float * feed_forward(Network * network, float inputs[]) {
 
 
 void shuffle_data(float ** input_data, float ** expected_output, size_t training_data_size){
+    /*
+    ** shuffle_data for input_data and expected_output.
+    ** The data stay connected - example :  (abc) (a'b'c') -> (cba) (c'b'a')
+     */
     for(size_t data_index = 0; data_index < training_data_size; data_index++){
         size_t random_index = rand() % training_data_size; // NOLINT(cert-msc50-cpp) - don't care if function is predictable
 
-        float * temp = input_data[data_index];
-        input_data[data_index] = input_data[random_index];
-        input_data[random_index] = temp;
-
-        temp = expected_output[data_index];
-        expected_output[data_index] = expected_output[random_index];
-        expected_output[random_index] = temp;
+        {float * temp = input_data[data_index];
+            input_data[data_index] = input_data[random_index];
+            input_data[random_index] = temp;}
+        {float * temp = expected_output[data_index];
+            expected_output[data_index] = expected_output[random_index];
+            expected_output[random_index] = temp;}
     }
 } // shuffle_data (in the mini-batch)
 
@@ -181,8 +187,8 @@ void update_mini_batch(Network * network,
 
     float learning_speed = eta / ((float) mini_batch_size); // The learning is `eta / len(mini_batch)`
 
-
     size_t num_layers = network -> num_layers; // amount of layers in the network
+
 
     size_t mini_batch_max = mini_batch_index + mini_batch_size;  // maximum index of the mini_batch
     for(size_t data_index = mini_batch_index; (data_index < mini_batch_max) && (data_index < training_data_size); data_index++) { // for each mini batch
@@ -196,14 +202,20 @@ void update_mini_batch(Network * network,
         ///////// DELTA IS `(feedforward_Out - y) * sigmoid_prime(last z)` /////////
 
         // Compute DELTA between output and expected output
-        size_t output_layer_size = network -> layers[network -> num_layers - 1] -> size;
 
         float ** zs = malloc(sizeof (float *) * num_layers); // zs is the value to put into sigmoid
-        float * delta = feed_forward__(network, input_data[data_index], zs); // delta = (output - expected_output) * sigmoid_prime(zs[-1])
-        for (size_t output_index = 0; output_index < output_layer_size; output_index++){
-            delta[output_index] -= final_expected_output[output_index];
-            delta[output_index] *= sigmoid_prime(zs[num_layers - 1][output_index]);
-        }
+        float * output_of_feed_forward = feed_forward__(network, input_data[data_index], zs);
+        size_t output_layer_size = network -> layers[network -> num_layers - 1] -> size;
+
+        float * delta = calloc(output_layer_size, sizeof (float));
+        for (size_t output_index = 0; output_index < output_layer_size; output_index++)
+            delta[output_index] =  // delta = (output - expected_output) * sigmoid_prime(zs[-1])
+                    (
+                            + output_of_feed_forward[output_index]
+                            - final_expected_output[output_index]
+                    ) * sigmoid_prime(zs[num_layers - 1][output_index]);
+
+        free (output_of_feed_forward);
 
         ///////////////////////////////////////////////////////////////////////////
 
@@ -216,32 +228,30 @@ void update_mini_batch(Network * network,
             // sp = sigmoid_prime(z);
 
             float * old_delta = delta;
-            delta = malloc(sizeof (float) * network -> layers[layer_index - 1] -> size); // We compute delta for the next iteration
+            delta = calloc(network -> layers[layer_index - 1] -> size, sizeof (float)); // We compute delta for the next iteration
 
             for (size_t neuron_index = 0; neuron_index < layer_size; neuron_index++) { // for each neuron
                 Neuron * neuron = layer -> neurons[neuron_index]; // current neuron
                 size_t num_weight = neuron -> num_weight; // amount of connections for the neuron
-                float * weights = neuron -> weights;  // connections of the neuron
+
 
                 float sp = sigmoid_prime(z[neuron_index]);
 
-                delta[neuron_index] = 0;
-
                 neuron -> bias -= learning_speed * old_delta[neuron_index];
+
+                float * weights = neuron -> weights;  // connections of the neuron
                 for (size_t weight_index = 0; weight_index < num_weight; weight_index++){
 
-                    delta[neuron_index] += old_delta[neuron_index] * weights[weight_index] * sp; // update delta
+                    delta[weight_index] += old_delta[neuron_index] * weights[weight_index] * sp; // update delta
 
                     weights[weight_index] -= learning_speed * old_delta[neuron_index] * sigmoid(zs[layer_index][weight_index]);
-
                 }
-
             }
 
             free(old_delta);
         }
 
-        for (size_t layer_index = 0; layer_index < num_layers; layer_index++)
+        for (size_t layer_index = 1; layer_index < num_layers; layer_index++)
             free(zs[layer_index]);
         free(zs);
 
@@ -250,15 +260,14 @@ void update_mini_batch(Network * network,
     }
 } // update_mini_batch
 
-
 void train_network(Network * network,
                    float ** input_data, float ** expected_output, size_t training_data_size,
-                   unsigned short epochs, size_t mini_batch_size, float eta){
+                   size_t epochs, size_t mini_batch_size, float eta){
     /*
-     * Train the neural network using mini-batch stochastic gradient descent.
+    ** Train the neural network using mini-batch stochastic gradient descent.
      */
 
-    for (unsigned short step = 1; step <= epochs; step++){
+    for (size_t step = 1; step <= epochs; step++){ // foreach epoch
         shuffle_data(input_data, expected_output, training_data_size);
 
         for (size_t mini_batch_index = 0; mini_batch_index < training_data_size; mini_batch_index += mini_batch_size)
@@ -267,7 +276,7 @@ void train_network(Network * network,
                               mini_batch_index, mini_batch_size,
                               eta);
 
-        printf("Epoch %hu / %hu\n", step, epochs); // printf is slow, we could let people chose to display it or not
+        printf("Epoch %zu / %zu\n", step, epochs); // printf is slow, we could let people chose to display it or not
 
         // TODO show advancements in the training to prove the improvements
     }

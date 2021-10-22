@@ -23,6 +23,6 @@
     void train_network(
             Network * network,
             float ** input_data, float ** expected_output, size_t training_data_size,
-            unsigned short epochs, size_t mini_batch_size, float eta);
+            size_t epochs, size_t mini_batch_size, float eta);
 
 #endif //OCR_EPITA_PROJECT_S3_NETWORK_H
