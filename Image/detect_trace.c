@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "basic_pixel.h"
 
 void detect_beg_end_incolumn(SDL_Surface *image, int percentage, int division, int borders[2], int column, int significant)

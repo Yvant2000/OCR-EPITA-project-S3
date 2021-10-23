@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 //Gives a pointer reference to a fixel
 static inline Uint8 *pixel_ref(SDL_Surface *surf, unsigned x, unsigned y)

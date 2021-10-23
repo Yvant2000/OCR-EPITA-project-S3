@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <SDL_image.h>
+#include <SDL2/SDL_image.h>
 #include "basic_pixel.h"
 
 #ifndef KERNEL_H

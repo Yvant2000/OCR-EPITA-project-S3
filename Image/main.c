@@ -1,8 +1,8 @@
 
 //gcc src/*.c -o bin/prog -I include -L lib -lmingw32 -lSDL2main -lSDL2
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <math.h>
 #include "basic_pixel.h"

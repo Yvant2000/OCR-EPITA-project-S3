@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #ifndef BASIC_PIXEL_H
 #define BASIC_PIXEL_H

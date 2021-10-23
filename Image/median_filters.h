@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #ifndef MEDIAN_FILTERS_H
 #define MEDIAN_FILTERS_H

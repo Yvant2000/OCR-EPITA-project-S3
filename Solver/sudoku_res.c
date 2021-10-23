@@ -62,9 +62,10 @@ int *parse_file(char *file_name)
             i++;
         }
     }
-    return matrix;
     // close the file
     fclose(fp);
+    return matrix;
+    
 }
 
 void write_to_file(char *file_name, int *grid)
