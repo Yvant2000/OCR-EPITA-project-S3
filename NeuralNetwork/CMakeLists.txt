@@ -4,14 +4,16 @@ project(OCR)
 set(CMAKE_C_STANDARD 11)
 
 set(PROJECT_HEADERS
-        Network.h
-        vector.h
+        Network.c
+        NetworkTraining.c
+        GatesTrainingData.c
         )
 
 set(PROJECT_SOURCES
-        main.c
         Network.c
-        vector.c
+        NetworkTraining.c
+        GatesTrainingData.c
+        main.c
         )
 
 add_executable(OCR ${PROJECT_SOURCES} ${PROJECT_HEADERS})
