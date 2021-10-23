@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
     }
     
     int num = str_to_int(argv[2]);
-    printf("%d\n", num);
     image = rotate(image, num);
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, image);

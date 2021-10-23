@@ -102,30 +102,8 @@ void write_to_file(char *file_name, int *grid)
         {
             fputc('\n',fp);
         }
-
     }
-<<<<<<< HEAD
-    // int k = 0;
-    //     char *line = malloc(sizeof(char) * 12);
-    //     for (int j = 0; j < 9; j++)
-    //     {
-    //         if (j % 3 == 0 && j != 0)
-    //         {
-    //             char c = ' ';
-    //             line[k] = c;
-    //             k++;
-    //         }
-    //         char c = grid[72 + j] + '0';
 
-    //         line[k] = c;
-    //         k++;
-    //     }
-    //     line[11] = 0;
-    //     fputs(line, fp);
-    //     fputc('\n', fp);
-    //     free(line);
-=======
->>>>>>> 01ae909b1eeb0d7af77f355791af66d0dfc2794b
     fclose(fp);
 }
 
