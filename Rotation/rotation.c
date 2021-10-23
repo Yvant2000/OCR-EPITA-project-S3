@@ -169,8 +169,64 @@ double my_abs(double value)
 	}
 }
 
+
+
+SDL_Surface *rotation_90(SDL_Surface *image)
+{
+    int w = image->w;
+    int h = image->h;
+    SDL_Surface *rotated = SDL_CreateRGBSurface(0, h, w, 32, 0, 0, 0, 0);
+    for (int i = 0; i < w; i++)
+    {
+        for (int j = 0; j < h; j++)
+        {
+            Uint32 pix = get_pixel(image, i, j);
+            put_pixel(rotated, h - j - 1, i, pix);
+        }
+    }
+    return rotated;
+}
+
+SDL_Surface *rotation_180(SDL_Surface *image)
+{
+    int w = image->w;
+    int h = image->h;
+    image = rotation_90(image);
+    image = rotation_90(image);
+    return image;
+}
+
+SDL_Surface *rotation_270(SDL_Surface *image)
+{
+    int w = image->w;
+    int h = image->h;
+    SDL_Surface *rotated = SDL_CreateRGBSurface(0, h, w, 32, 0, 0, 0, 0);
+    for (int i = 0; i < w; i++)
+    {
+        for (int j = 0; j < h; j++)
+        {
+            Uint32 pix = get_pixel(image, i, j);
+            put_pixel(rotated, j, w - 1 - i, pix);
+        }
+    }
+    return rotated;
+}
+
+
 SDL_Surface *rotate(SDL_Surface *image, double angle)
 {
+    if(angle == 270.)
+    {
+        return rotation_270(image);
+    }
+    if(angle == 180.)
+    {
+        return rotation_180(image);
+    }
+    if(angle == 90.)
+    {
+        return rotation_90(image);
+    }
     int *x_and_y = malloc(sizeof(int) * 2);
     printf("angle %f\n",angle);
     angle = (angle * 3.14159265)/180;
