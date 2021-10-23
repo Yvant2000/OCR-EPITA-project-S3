@@ -71,7 +71,6 @@ void put_pixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel)
 
 SDL_Surface *trim(SDL_Surface *image)
 {
-    // printf("Entered function\n");
     int h = image->h;
     int w = image->w;
     size_t bottom_trim = 0;
@@ -79,9 +78,9 @@ SDL_Surface *trim(SDL_Surface *image)
     size_t right_trim = 0;
     size_t left_trim = 0;
 
-    for (size_t j = h; j > 0; j--)
+    for (int j = h; j > 0; j--)
     {
-        for (size_t i = 0; i < w; i++)
+        for (int i = 0; i < w; i++)
         {
             Uint32 pix = get_pixel(image, i, j);
             //If the pixel is not black
@@ -92,9 +91,9 @@ SDL_Surface *trim(SDL_Surface *image)
             }
         }
     }
-    for (size_t j = 0; j < h; j++)
+    for (int j = 0; j < h; j++)
     {
-        for (size_t i = 0; i < w; i++)
+        for (int i = 0; i < w; i++)
         {
             Uint32 pix = get_pixel(image, i, j);
             //If the pixel is not black
@@ -105,7 +104,7 @@ SDL_Surface *trim(SDL_Surface *image)
             }
         }
     }
-    for (size_t i = 0; i < w; i++)
+    for (int i = 0; i < w; i++)
     {
         for (size_t j = top_trim; j > bottom_trim; j--)
         {
@@ -118,7 +117,7 @@ SDL_Surface *trim(SDL_Surface *image)
             }
         }
     }
-    for (size_t i = w; i > 0; i--)
+    for (int i = w; i > 0; i--)
     {
         for (size_t j = top_trim; j > bottom_trim; j--)
         {
@@ -168,12 +167,15 @@ SDL_Surface *rotate(SDL_Surface *image, double angle)
     double sinus = sin(angle);
     int height = image->h;
     int width = image->w;
-    int new_height = round((abs(height * (int)cosine) + abs(width * (int)sinus))) + 1;
-    int new_width = round((abs(width * cosine) + abs(height * sinus))) + 1;
-    SDL_Surface *output_image = SDL_CreateRGBSurface(0, new_width * 2, new_height * 2, 32, 0, 0, 0, 0);
+    int new_height = round(((double)fabs(height * cosine) +
+			    (double)fabs(width * sinus))) + 1;
+    int new_width = round(((double)fabs(width * cosine) +
+			    (double)fabs(height * sinus))) + 1;
+    SDL_Surface *output_image = SDL_CreateRGBSurface(
+		    0, new_width * 2, new_height * 2, 32, 0, 0, 0, 0);
     int original_center_height = round(((height + 1) / 2) - 1);
     int original_center_width = round(((width + 1) / 2) - 1);
-    for (int i = 0; i < height; i++)
+   for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
