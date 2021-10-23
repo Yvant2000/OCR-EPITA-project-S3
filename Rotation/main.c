@@ -8,6 +8,9 @@
 int main(int argc, char *argv[])
 {
     int quit = 0;
+
+    if (argc < 3)
+	    printf("Insufficient arguments\n");
     if(argv[1]==NULL){
         printf("Please input a path\n");
         return 1;

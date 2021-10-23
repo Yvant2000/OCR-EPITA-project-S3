@@ -156,25 +156,45 @@ int *new_sheer(double angle, int x, int y)
     x_and_y[1] = new_y;
     return x_and_y;
 }
+double my_abs(double value)
+{
+	if(value < 0.)
+	{
+		value *= -1.0;
+		return value;
+	}
+	else
+	{
+		return value;
+	}
+}
 
 SDL_Surface *rotate(SDL_Surface *image, double angle)
 {
-    if(angle == -1){
-        return image;
-    }
     int *x_and_y = malloc(sizeof(int) * 2);
+    printf("angle %f\n",angle);
+    angle = (angle * 3.14159265)/180;
+    printf("angle %f\n",angle);
     double cosine = cos(angle);
+    printf("cos %f\n",cosine);
     double sinus = sin(angle);
-    int height = image->h;
-    int width = image->w;
-    int new_height = round(((double)fabs(height * cosine) +
-			    (double)fabs(width * sinus))) + 1;
-    int new_width = round(((double)fabs(width * cosine) +
-			    (double)fabs(height * sinus))) + 1;
+    printf("sin %f\n",sinus);
+    double height = image->h;
+    printf("height %f\n",height);
+    double width = image->w;
+    printf("width %f\n",width);
+    int new_height = round(my_abs(height * cosine) +
+			    my_abs(width * sinus)) + 1;
+    printf("new_height %d\n",new_height);
+    int new_width = round(my_abs(width * cosine) +
+			    my_abs(height * sinus)) + 1;
+    printf("new_width %d\n",new_width);
     SDL_Surface *output_image = SDL_CreateRGBSurface(
 		    0, new_width * 2, new_height * 2, 32, 0, 0, 0, 0);
     int original_center_height = round(((height + 1) / 2) - 1);
+    printf("center_h %d\n",original_center_height);
     int original_center_width = round(((width + 1) / 2) - 1);
+    printf("center_w %d\n",original_center_width);
    for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -191,7 +211,7 @@ SDL_Surface *rotate(SDL_Surface *image, double angle)
         }
     }
     free(x_and_y);
-    SDL_Surface *test = trim(output_image);
+     SDL_Surface *test = trim(output_image);
     return test;
 }
 
