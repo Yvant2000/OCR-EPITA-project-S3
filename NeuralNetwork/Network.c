@@ -59,7 +59,7 @@ Layer * create_layer(size_t size, size_t prev_size, size_t next_size){
     return layer;
 } // create_layer
 
-typedef struct Network_old{
+typedef struct Network{
     size_t num_layers;
     Layer ** layers;
 }Network;
@@ -81,7 +81,21 @@ Network * create_network(const size_t sizes[], size_t num_layers){
     return network;
 } // create_network
 
-
+void delete_network(Network * network){
+    for(size_t layer_index = 0; layer_index < network -> num_layers; layer_index++){
+        Layer * layer = network -> layers[layer_index];
+        for(size_t neuron_index = 0;neuron_index < layer -> size; neuron_index++){
+            Neuron * neuron = layer -> neurons[neuron_index];
+            free(neuron -> weights);
+            free(neuron -> delta_weights);
+            free(neuron);
+        }
+        free(layer -> neurons);
+        free(layer);
+    }
+    free (network -> layers);
+    free (network);
+}
 
 void print_network(Network* network){
     size_t num_layer = network -> num_layers;

@@ -33,5 +33,6 @@ typedef struct Network_old{
 
 Network * create_network(const size_t sizes[], size_t num_layers);
 void print_network(Network* network);
+void delete_network(Network * network);
 
 #endif //OCR_EPITA_PROJECT_S3_NETWORK_H

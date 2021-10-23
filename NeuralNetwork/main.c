@@ -17,5 +17,7 @@ int main(){
 
     test_inputs(network);
 
+    delete_network(network);
+
     return 0;
 }

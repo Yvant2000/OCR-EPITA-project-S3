@@ -1,7 +1,7 @@
 //
 // Created by Yves-Antoine on 23/10/2021.
 //
-#include <malloc.h>
+#include <stdlib.h>
 #include "Network.h"
 #include "math.h"
 
@@ -76,6 +76,8 @@ void backdrop(Network * network, const float * expected_output)
     }
 }
 
+
+
 float sigmoid(float z){
     return 1.f / (1.f + expf(-z));
 }
@@ -145,7 +147,8 @@ float * feed_forward(Network * network, const float * input_data){
     return output;  // return the value given by the network
 }
 
-void shuffle_data(float ** input_data, float ** expected_output, size_t training_data_size){
+
+__attribute__((unused)) void shuffle_data(float ** input_data, float ** expected_output, size_t training_data_size){
     /*
     ** shuffle_data for input_data and expected_output.
     ** The data stay connected - example :  (abc) (a'b'c') -> (cba) (c'b'a')
@@ -161,6 +164,7 @@ void shuffle_data(float ** input_data, float ** expected_output, size_t training
             expected_output[random_index] = temp;}
     }
 } // shuffle_data
+
 
 void train_neural_network(Network * network, float ** input_data, float ** expected_output, size_t data_size, size_t epochs, float eta)
 /* Trains the Network with*/

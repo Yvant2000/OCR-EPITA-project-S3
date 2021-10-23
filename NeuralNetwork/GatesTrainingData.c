@@ -182,23 +182,27 @@ void test_inputs(Network * network){
         float inputs[] = {0.f, 0.f};
         float * test_output = feed_forward(network, inputs);
         print_output(test_output, network -> layers[network -> num_layers - 1] -> size);
+        free(test_output);
     }
     {
         printf("0 1 ");
         float inputs[] = {0.f, 1.f};
         float * test_output = feed_forward(network, inputs);
         print_output(test_output, network -> layers[network -> num_layers - 1] -> size);
+        free(test_output);
     }
     {
         printf("1 0 ");
         float inputs[] = {1.f, 0.f};
         float * test_output = feed_forward(network, inputs);
         print_output(test_output, network -> layers[network -> num_layers - 1] -> size);
+        free(test_output);
     }
     {
         printf("1 1 ");
         float inputs[] = {1.f, 1.f};
         float * test_output = feed_forward(network, inputs);
         print_output(test_output, network -> layers[network -> num_layers - 1] -> size);
+        free(test_output);
     }
 }
