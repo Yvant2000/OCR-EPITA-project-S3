@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "basic_pixel.h": "c",
+        "kernel.h": "c",
+        "primary_filters.h": "c",
+        "median_filters.h": "c",
+        "otsu_binary.h": "c"
+    }
+}
