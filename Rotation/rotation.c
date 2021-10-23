@@ -168,8 +168,8 @@ SDL_Surface *rotate(SDL_Surface *image, double angle)
     double sinus = sin(angle);
     int height = image->h;
     int width = image->w;
-    int new_height = round(((double)abs(height * cosine) + (double)abs(width * sinus))) + 1;
-    int new_width = round(((double)abs(width * cosine) + (double)abs(height * sinus))) + 1;
+    int new_height = round((abs(height * (int)cosine) + abs(width * (int)sinus))) + 1;
+    int new_width = round((abs(width * cosine) + abs(height * sinus))) + 1;
     SDL_Surface *output_image = SDL_CreateRGBSurface(0, new_width * 2, new_height * 2, 32, 0, 0, 0, 0);
     int original_center_height = round(((height + 1) / 2) - 1);
     int original_center_width = round(((width + 1) / 2) - 1);
