@@ -36,9 +36,9 @@ SDL_Surface *median5(SDL_Surface *image)
     int w = image->w;
     int h = image->h;
     SDL_Surface *image_coppy = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
-    for (int i = 1; i < w - 1; i++)
+    for (int i = 2; i < w - 2; i++)
     {
-        for (int j = 1; j < h - 1; j++)
+        for (int j = 2; j < h - 2; j++)
         {
             //A table taking all the pixels around the pixel (i,j)
             int table[25] = {pixel_grey(image, i - 1, j - 1), pixel_grey(image, i, j - 1), pixel_grey(image, i + 1, j - 1),

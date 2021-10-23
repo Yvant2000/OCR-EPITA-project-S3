@@ -5,7 +5,7 @@
 #include <math.h>
 #include "rotation.h"
 
-
+const double  M_PI =  3.14159265358979323846;
 typedef struct Couple
 {
     double theta;
@@ -24,13 +24,11 @@ SDL_Surface *hough_alligned(SDL_Surface *image)
     int w = image->w;
     int h = image->h;
     int max_dist = (int)(round(sqrt(w * w + h * h)));
-    printf("max_dist -> %d\n", max_dist);
-    // SDL_Surface *hough = SDL_CreateRGBSurface(0, 2 * max_dist, 181, 32, 0, 0, 0, 0);
     int parcours = 2 * max_dist * 181;
     Couple *couple_list = malloc(parcours * sizeof(Couple));
     double *hough_tr = malloc(sizeof(double) * parcours);
     //max_dist la diagonale de l'image
-    for (size_t i = 0; i < parcours; i++)
+    for (int i = 0; i < parcours; i++)
     {
         hough_tr[i] = 0;
     }
@@ -71,7 +69,7 @@ SDL_Surface *hough_alligned(SDL_Surface *image)
     free(thetas);
     int bornes = max_dist / 3.5;
     int couple_number = 0;
-    for (size_t i = 0; i < 2 * max_dist * 181; i++)
+    for (int i = 0; i < parcours; i++)
     {
 
         if (couple_list[i].occurence >= biggest_pix - bornes)
@@ -83,7 +81,7 @@ SDL_Surface *hough_alligned(SDL_Surface *image)
     int theta_numbers = 0;
     double new_theta = 0.;
     size_t z = 0;
-    for (size_t i = 0; i < 2 * max_dist * 181; i++)
+    for (int i = 0; i < parcours; i++)
     {
         if (couple_list[i].occurence >= biggest_pix - bornes)
         {
@@ -122,14 +120,14 @@ SDL_Surface *hough_alligned(SDL_Surface *image)
     return image;
 }
 
-Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
+Rotated *hough_transform(SDL_Surface *image)
 {
     int w = image->w;
     int h = image->h;
     int max_dist = (int)(round(sqrt(w * w + h * h)));
     printf("max_dist -> %d\n", max_dist);
     // SDL_Surface *hough = SDL_CreateRGBSurface(0, 2 * max_dist, 181, 32, 0, 0, 0, 0);
-    int parcours = 2 * max_dist * 181;
+    size_t parcours = 2 * max_dist * 181;
     Rotated *image_theta = malloc(sizeof(Rotated));
     Couple *couple_list = malloc(parcours * sizeof(Couple));
     double *hough_tr = malloc(sizeof(double) * parcours);
@@ -175,7 +173,7 @@ Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
     free(thetas);
     int bornes = max_dist / 4;
     int couple_number = 0;
-    for (size_t i = 0; i < 2 * max_dist * 181; i++)
+    for (size_t i = 0; i < parcours; i++)
     {
 
         if (couple_list[i].occurence >= biggest_pix - bornes)
@@ -187,7 +185,7 @@ Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
     int theta_numbers = 0;
     double new_theta = 0.;
     size_t z = 0;
-    for (size_t i = 0; i < 2 * max_dist * 181; i++)
+    for (size_t i = 0; i < parcours; i++)
     {
         if (couple_list[i].occurence >= biggest_pix - bornes)
         {
@@ -221,7 +219,7 @@ Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
     // SDL_SaveBMP(image, "C:/Users/vladi/SDL_test/src/hough_all.bmp");
     printf("theta_numbers ->%d\n", theta_numbers);
     Couple *grouped = malloc(sizeof(Couple) * (theta_numbers + 1));
-    for (size_t i = 0; i < theta_numbers; i++)
+    for (int i = 0; i < theta_numbers; i++)
     {
         grouped[i].ro = 0.;
         grouped[i].occurence = 0;
@@ -229,7 +227,6 @@ Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
     }
 
     double theta_new = 10.;
-    double nomber_occ = 0.;
     int biggest_occurence = 0;
     int current_occurence = 0;
     size_t biggest_theta_occurence = 0;
@@ -256,14 +253,14 @@ Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
             grouped[ind].ro = reduced_couple_list[i].ro;
         }
     }
-    for (size_t i = 0; i < theta_numbers; i++)
+    for (int i = 0; i < theta_numbers; i++)
     {
         printf("occurence -> %d, theta -> %f, ro -> %f\n",
                grouped[i].occurence, grouped[i].theta, grouped[i].ro);
     }
     printf("biggest_occurence -> %d\n", biggest_occurence);
-    printf("final theta -> %f\n", grouped[biggest_theta_occurence]);
-    if (grouped[biggest_theta_occurence].theta < 1.58 && grouped[biggest_theta_occurence].theta > 1.55 || grouped[biggest_theta_occurence].theta == 0)
+    printf("final theta -> %f\n", grouped[biggest_theta_occurence].theta);
+    if ((grouped[biggest_theta_occurence].theta < 1.58 && grouped[biggest_theta_occurence].theta > 1.55) || grouped[biggest_theta_occurence].theta == 0)
     {
         printf("The sudoku is aligned\n");
         for (size_t i = 0; i < z; i++)
@@ -285,7 +282,6 @@ Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
             }
         }
         image = rotation_90(image);
-        SDL_SaveBMP(image, "C:/Users/vladi/SDL_test/src/rotate90.bmp");
         image = hough_alligned(image);
         image = rotation_270(image);
         image_theta->image_output = image;
@@ -298,6 +294,7 @@ Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
 
             for (double x = 10; x < w - 10; x++)
             {
+		    printf("In the Else occurence -> %d, theta -> %f, ro -> %f\n", reduced_couple_list[i].occurence, reduced_couple_list[i].theta, reduced_couple_list[i].ro); 
                 double y = (-cos(reduced_couple_list[i].theta) / sin(reduced_couple_list[i].theta)) * x + (reduced_couple_list[i].ro / sin(reduced_couple_list[i].theta));
                 Uint32 pix = SDL_MapRGB(image->format, 255, 0, 0);
                 if (y > 0. && y < h)
@@ -309,9 +306,11 @@ Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original)
                 }
             }
         }
-        image = rotate(image, grouped[biggest_theta_occurence-2].theta);
-        image_theta->image_output = image;
+	printf("We scanned through\n");
+        image_theta->image_output  = rotate(image, grouped[biggest_theta_occurence-2].theta);
+	printf("We passed rotation");
         image_theta->theta = grouped[biggest_theta_occurence-2].theta;
+	printf("theta -> %f\n",image_theta->theta);
     }
     free(grouped);
     free(reduced_couple_list);

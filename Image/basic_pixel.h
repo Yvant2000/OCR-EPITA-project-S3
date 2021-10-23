@@ -5,7 +5,6 @@
 #ifndef BASIC_PIXEL_H
 #define BASIC_PIXEL_H
 
-static inline Uint8 *pixel_ref(SDL_Surface *surf, unsigned x, unsigned y);
 
 Uint32 get_pixel(SDL_Surface *surface, unsigned x, unsigned y);
 

@@ -81,8 +81,8 @@ char *create_str(int number, char *str_path)
 }
 void detect_green(SDL_Surface *image_green, SDL_Surface *original,char *str_path)
 {
-    int h = image_green->h;
-    int w = image_green->w;
+    size_t h = image_green->h;
+    size_t w = image_green->w;
     // Count_numbers represents the case number
     int count_numbers = 0;
     size_t new_i = 0;
@@ -92,8 +92,6 @@ void detect_green(SDL_Surface *image_green, SDL_Surface *original,char *str_path
         size_t i = new_i;
         while (i < w)
         {
-            // Uint32 pixel_d = SDL_MapRGB(original->format,28,j*0.1,j*0.1);
-            // put_pixel(original,i,j,pixel_d);
             //Get the pixel at i,j
             Uint32 pixel = get_pixel(image_green, i, j);
             //If it is not a detected pixel, increment j
@@ -195,8 +193,8 @@ void detect_green(SDL_Surface *image_green, SDL_Surface *original,char *str_path
 //As well as this strips of white and red pixels
 SDL_Surface *clean_up(SDL_Surface *image)
 {
-    int h = image->h;
-    int w = image->w;
+    size_t h = image->h;
+    size_t w = image->w;
     Uint32 green_pix = SDL_MapRGB(image->format, 100, 255, 100);
     for (size_t i = 1; i < w - 1; i++)
     {

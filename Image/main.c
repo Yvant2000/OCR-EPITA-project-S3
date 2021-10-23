@@ -1,6 +1,5 @@
 
 //gcc src/*.c -o bin/prog -I include -L lib -lmingw32 -lSDL2main -lSDL2
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
@@ -22,7 +21,6 @@ typedef struct Sobel
     SDL_Surface *gradient_intensity;
     double *directions;
 } Sobel;
-
 
 
 typedef struct Couple
@@ -1617,37 +1615,71 @@ typedef struct Couple
 
 int main(int argc, char *argv[])
 {
+   if(argc !=3){
+      return 1;
+    }
     int quit = 0;
     SDL_Event event;
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = SDL_CreateWindow("Sudoku",
-                                          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1300, 1300, 0);
+                                          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1000, 1000, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Surface *image = SDL_LoadBMP(argv[1]);
     //GreyScale for image original
     grey_scale(image);
+    //Do the Gauss
     SDL_Surface *after_gaussian_blur = gaussian_blur(image);
-    SDL_SaveBMP(after_gaussian_blur, "C:/Users/vladi/SDL_test/src/gauss.bmp");
+    //Do the Median
     SDL_Surface *after_median = median5(after_gaussian_blur);
-    SDL_SaveBMP(after_median, "C:/Users/vladi/SDL_test/src/median.bmp");
-    after_median = sobel(after_median);
-    SDL_SaveBMP(after_median, "C:/Users/vladi/SDL_test/src/sobel.bmp");
-    int threshold = Otsu(after_median);
-    OtsuBinarization(after_median, threshold);
-    after_median = hysteris(after_median);
-    SDL_SaveBMP(after_median, "C:/Users/vladi/SDL_test/src/hysteris.bmp");
+    //Free Gauss
+    SDL_FreeSurface(after_gaussian_blur);
+    // Do the sobel
+    SDL_Surface *image_hor = horizontal_edge_detection_sobel(after_median);
+    SDL_Surface *image_vert = vertical_edge_detection_sobel(after_median);
+    //Sobel call
+    SDL_Surface *sobel = combine_sobel(image_hor,image_vert);
+    //Free Image_hor
+    SDL_FreeSurface(image_hor);
+    //Free Image_vert
+    SDL_FreeSurface(image_vert);
+    //Do the sobel
+    SDL_Surface *image_hor1 = horizontal_edge_detection_sobel1(after_median);
+    SDL_Surface *image_vert1 = vertical_edge_detection_sobel1(after_median);
+     //Free Median
+    SDL_FreeSurface(after_median);
+    SDL_Surface *sobel1  = combine_sobel(image_hor1,image_vert1);
+    //Free Image_hor
+    SDL_FreeSurface(image_hor1);
+    //Free Image_vert
+    SDL_FreeSurface(image_vert1);
+    SDL_Surface *sobel2 = combine_sobel(sobel1,sobel);
+    SDL_FreeSurface(sobel);
+    SDL_FreeSurface(sobel1);
+
+    int threshold = Otsu(sobel2);
+    OtsuBinarization(sobel2, threshold);
+    SDL_Surface *hyster = hysteris(sobel2);
+    SDL_FreeSurface(sobel2);
+    Rotated *image_theta = hough_transform(hyster,image);
+    SDL_FreeSurface(hyster);
+    SDL_Surface *theta_im  = image_theta->image_output;
+    //SDL_Surface *to_save = rotate(image,image_theta->theta);
+    free(image_theta);
+    SDL_FreeSurface(image);
+    //SDL_FreeSurface(to_save);
+    /*
     Rotated *image_theta = hough_transform(after_median,after_gaussian_blur);
     image = image_theta->image_output;
-    SDL_SaveBMP(image_theta->image_output, "C:/Users/vladi/SDL_test/src/hough.bmp");
+
     after_gaussian_blur= rotate(after_gaussian_blur,image_theta->theta);
     SDL_Surface *image_hor = detect_motive_hor(image);
-    SDL_SaveBMP(image_hor, "C:/Users/vladi/SDL_test/src/hor.bmp");
+
     SDL_Surface *image_vert = detect_motive_vert(image);
-    SDL_SaveBMP(image_vert, "C:/Users/vladi/SDL_test/src/vert.bmp");
+
     image = clean_up(image_vert);
-    SDL_SaveBMP(image_vert, "C:/Users/vladi/SDL_test/src/clean_up.bmp");
-    detect_green(image_vert, after_gaussian_blur,argv[2]);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, image);
+
+    detect_green(image_vert, after_gaussian_blur,argv[2]); */
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, theta_im);
     while (!quit)
     {
         SDL_WaitEvent(&event);
@@ -1661,11 +1693,10 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(renderer);
     }
     SDL_DestroyTexture(texture);
-    SDL_FreeSurface(image);
-    SDL_FreeSurface(after_median);
-    SDL_FreeSurface(after_gaussian_blur);
+    SDL_FreeSurface(theta_im);
+    /*
     SDL_FreeSurface(image_hor);
-    SDL_FreeSurface(image_vert);
+    SDL_FreeSurface(image_vert);*/
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

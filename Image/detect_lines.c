@@ -21,7 +21,7 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
     {
         ar->array_n[i] = 0;
     }
-    for (size_t i = 0; i < image->w; i++)
+    for (int i = 0; i < w; i++)
     {
         int j = 0;
         int serie = 0;
@@ -33,7 +33,7 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
             j += 1;
             pixel = get_pixel(image, i, j);
         }
-        while (j < image->h)
+        while (j < h)
         {
             pixel = get_pixel(image, i, j);
             Uint8 r, g, b;
@@ -81,7 +81,7 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
             }
         }
     }
-    for (size_t i = 0; i < image->w; i++)
+    for (int i = 0; i < w; i++)
     {
         int j = 0;
         int serie = 0;
@@ -92,7 +92,7 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
             j += 1;
             pixel = get_pixel(image, i, j);
         }
-        while (j < image->h)
+        while (j < h)
         {
             pixel = get_pixel(image, i, j);
             Uint8 r, g, b;
@@ -114,7 +114,7 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
                     break;
                 }
             }
-            if (serie >= max_index - (h / 95) && serie <= max_index + (h / 95))
+            if (serie >= (int)max_index - (h / 95) && serie <= (int)max_index + (h / 95))
             {
                 int actual_j = j - serie;
                 while (j != actual_j)
@@ -154,7 +154,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
     {
         ar->array_n[i] = 0;
     }
-    for (size_t i = 0; i < image->h; i++)
+    for (int i = 0; i < h; i++)
     {
         int j = 0;
         int serie = 0;
@@ -165,7 +165,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
             j += 1;
             pixel = get_pixel(image, j, i);
         }
-        while (j < image->w)
+        while (j < w)
         {
             pixel = get_pixel(image, j, i);
 
@@ -191,7 +191,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
                 ar->array_n[serie - 1] += 1;
                 serie = 0;
             }
-            if (j >= image->w)
+            if (j >= w)
             {
                 break;
             }
@@ -211,7 +211,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
             }
         }
     }
-    for (size_t i = 0; i < image->h; i++)
+    for (int i = 0; i < h; i++)
     {
         int j = 0;
         int serie = 0;
@@ -222,7 +222,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
             j += 1;
             pixel = get_pixel(image, j, i);
         }
-        while (j < image->w)
+        while (j < w)
         {
             pixel = get_pixel(image, j, i);
             //scan untill the red ends
@@ -239,7 +239,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
                 }
             }
 
-            if (serie >= max_index - (w / 95) && serie <= max_index + (w / 95))
+            if (serie >= (int)max_index - (w / 95) && serie <= (int)max_index + (w / 95))
             {
                 int actual_j = j - serie - 1;
                 while (j != ++actual_j)
@@ -252,7 +252,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
                 ar->array_n[serie - 1]++;
                 serie = 0;
             }
-            if (j >= image->w)
+            if (j >= w)
                 break;
         }
     }
@@ -263,8 +263,8 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
 
 void combine_detections(SDL_Surface *image, SDL_Surface *image1)
 {
-    for (size_t i = 0; i < image->w; i++)
-        for (size_t j = 0; j < image->h; j++)
+    for (int i = 0; i < image->w; i++)
+        for (int j = 0; j < image->h; j++)
             if (get_pixel(image, i, j) == SDL_MapRGB(image->format, 100, 0, 100))
                 if (get_pixel(image1, i, j) == SDL_MapRGB(image1->format, 0, 255, 0))
                     put_pixel(image, i, j, SDL_MapRGB(image->format, 100, 255, 100));

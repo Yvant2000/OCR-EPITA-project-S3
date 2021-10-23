@@ -91,8 +91,8 @@ SDL_Surface *vertical_edge_detection_sobel1(SDL_Surface *image)
 
 SDL_Surface *hysteris(SDL_Surface *image)
 {
-    int h = image->h;
-    int w = image->w;
+    size_t h = image->h;
+    size_t w = image->w;
     SDL_Surface *image_coppy = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
     for (size_t i = 1; i < w - 1; i++)
     {
@@ -122,8 +122,8 @@ SDL_Surface *hysteris(SDL_Surface *image)
 
 SDL_Surface *combine_sobel(SDL_Surface *image_hor, SDL_Surface *image_vert)
 {
-    int h = image_hor->h;
-    int w = image_hor->w;
+    size_t h = image_hor->h;
+    size_t w = image_hor->w;
     SDL_Surface *image_coppy = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
     for (size_t i = 0; i < w; i++)
     {
@@ -139,40 +139,3 @@ SDL_Surface *combine_sobel(SDL_Surface *image_hor, SDL_Surface *image_vert)
     }
     return image_coppy;
 }
-
-
-SDL_Surface *sobel(SDL_Surface *image)
-{
-    int h = image->h;
-    int w = image->w;
-    SDL_Surface *image_hor = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
-    image_hor = horizontal_edge_detection_sobel(image);
-
-    SDL_Surface *image_vert = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
-    image_vert = vertical_edge_detection_sobel(image);
-
-    SDL_Surface *image_hor1 = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
-    image_hor1 = horizontal_edge_detection_sobel1(image);
-
-    SDL_Surface *image_vert1 = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
-    image_vert1 = vertical_edge_detection_sobel1(image);
-
-    SDL_Surface *sobel = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
-    sobel = combine_sobel(image_hor, image_vert);
-
-    SDL_Surface *sobel1 = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
-    sobel1 = combine_sobel(image_hor1, image_vert1);
-
-    SDL_Surface *sobel2 = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
-    sobel2 = combine_sobel(sobel1, sobel);
-
-    SDL_FreeSurface(image_hor);
-    SDL_FreeSurface(image_vert);
-    SDL_FreeSurface(image_hor1);
-    SDL_FreeSurface(image_vert1);
-    SDL_FreeSurface(sobel);
-    SDL_FreeSurface(sobel1);
-
-    return sobel2;
-}
-
