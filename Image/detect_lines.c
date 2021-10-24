@@ -17,6 +17,13 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
     array_type *ar = malloc(sizeof(array_type));
     ar->len = array_size;
     ar->array_n = malloc(sizeof(int) * array_size);
+    SDL_Surface *output = SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
+    for(int i =0; i< w; i++){
+      for(int j=0; j < h; j++){
+        Uint32 pixel = get_pixel(image, i, j);
+        put_pixel(output,i,j,pixel);
+       }
+    }
     for (size_t i = 0; i < array_size; i++)
     {
         ar->array_n[i] = 0;
@@ -127,7 +134,7 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
                 {
 
                     Uint32 pixel = SDL_MapRGB(image->format, 100, 0, 100);
-                    put_pixel(image, i, actual_j, pixel);
+                    put_pixel(output, i, actual_j, pixel);
                     actual_j += 1;
                 }
             }
@@ -144,7 +151,7 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
         }
     }
     free(ar);
-    return image;
+    return output;
 }
 
 SDL_Surface *detect_motive_vert(SDL_Surface *image)
@@ -155,6 +162,13 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
     array_type *ar = malloc(sizeof(array_type));
     ar->len = array_size;
     ar->array_n = malloc(sizeof(int) * array_size);
+    SDL_Surface *output = SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
+    for(int i =0; i< w; i++){
+      for(int j=0; j < h; j++){
+        Uint32 pixel = get_pixel(image, i, j);
+        put_pixel(output,i,j,pixel);
+       }
+     }
     for (size_t i = 0; i < array_size; i++)
     {
         ar->array_n[i] = 0;
@@ -165,7 +179,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
         int serie = 0;
         Uint32 pixel = get_pixel(image, j, i);
         //If the pixel seen  not is red
-        while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->w)
+        while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < w)
         {
             
             pixel = get_pixel(image, j, i);
@@ -175,17 +189,17 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
         {
             pixel = get_pixel(image, j, i);
 
-            while (pixel == SDL_MapRGB(image->format, 255, 0, 0) && j < image->w) //while the pixels are red in other words not black
+            while (pixel == SDL_MapRGB(image->format, 255, 0, 0) && j < w) //while the pixels are red in other words not black
             {
                 
                 pixel = get_pixel(image, j, i);
 		j+=1;
             }
-            while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->w) //while the pixels are black in other words not red
+            while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < w) //while the pixels are black in other words not red
             {
                 serie += 1;
-                j += 1;
                 pixel = get_pixel(image, j, i);
+		j+=1;
                 if (serie >= w / 5)
                 {
                     serie = 0;
@@ -204,6 +218,7 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
             }
         }
     }
+    printf("Out of the first loop\n");
     int max_occ = 0;
     size_t max_index = 0;
     for (size_t i = 0; i < array_size; i++)
@@ -218,31 +233,36 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
             }
         }
     }
+    printf("After max-occ\n");
     for (int i = 0; i < h; i++)
     {
         int j = 0;
         int serie = 0;
         Uint32 pixel = get_pixel(image, j, i);
         //If the pixel seen  not is red
-        while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->w)
+        while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < w)
         {
-            
+	printf("Not read: i -> %d , j -> %d\n",i,j);
             pixel = get_pixel(image, j, i);
 	    j+=1;
         }
         while (j < w)
         {
+		printf("Read: i -> %d , j -> %d\n",i,j);
             pixel = get_pixel(image, j, i);
             //scan untill the red ends
-            while (pixel == SDL_MapRGB(image->format, 255, 0, 0) && j < image->w) //while the pixels are red in other words not black
-                pixel = get_pixel(image, j, i);
+            while (pixel == SDL_MapRGB(image->format, 255, 0, 0) && j < w) {
+	//while the pixels are red in other words not black
+	     printf("Read: i -> %d , j -> %d\n",i,j);   
+             pixel = get_pixel(image, j, i);
 	    j+=1;
-
-            while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->w) //while the pixels are black in other words not red
+	    }
+            while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < w) //while the pixels are black in other words not red
             {
+		serie+=1;
                 pixel = get_pixel(image, j, i);
 		j+=1;
-                if (++serie >= w / 5)
+                if (serie >= w / 5)
                 {
                     serie = 0;
                     break;
@@ -251,31 +271,48 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
 
             if (serie >= (int)max_index - (w / 95) && serie <= (int)max_index + (w / 95))
             {
-                int actual_j = j - serie - 1;
-                while (j != ++actual_j)
-                    if (get_pixel(image, actual_j, i) == SDL_MapRGB(image->format, 100, 0, 100))
-                        put_pixel(image, actual_j, i, SDL_MapRGB(image->format, 100, 255, 100));
+                int actual_j = j - serie;
+                while (j != actual_j){
+		  
+		      put_pixel(output, actual_j, i, SDL_MapRGB(image->format, 0, 255, 0));
+		  
+		   actual_j+=1;
+		}
             }
             //We saw something else than black
             if (serie > 1)
             {
-                ar->array_n[serie - 1]++;
+                ar->array_n[serie - 1]+=1;
                 serie = 0;
             }
-            if (j >= w)
+            if (j >= w){
                 break;
+	    }
         }
     }
+    printf("All Good\n");
     free(ar);
-    free(ar->array_n);
-    return image;
+    return output;
 }
 
-void combine_detections(SDL_Surface *image, SDL_Surface *image1)
-{
-    for (int i = 0; i < image->w; i++)
-        for (int j = 0; j < image->h; j++)
-            if (get_pixel(image, i, j) == SDL_MapRGB(image->format, 100, 0, 100))
-                if (get_pixel(image1, i, j) == SDL_MapRGB(image1->format, 0, 255, 0))
-                    put_pixel(image, i, j, SDL_MapRGB(image->format, 100, 255, 100));
+SDL_Surface * combine_detections(SDL_Surface *image, SDL_Surface *image1)
+{ 
+int h = image->h;
+int w = image->w;
+SDL_Surface *final_image = SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
+    for (int i = 0; i < image->w; i++){
+	    for (int j = 0; j < image->h; j++){
+             if (get_pixel(image, i, j) == SDL_MapRGB(image->format, 100, 0, 100)){
+		if (get_pixel(image1, i, j) == SDL_MapRGB(image1->format, 0, 255, 0)){
+	            put_pixel(final_image, i, j, SDL_MapRGB(image->format, 100, 255, 100));
+		}
+
+        }
+	     else{
+		     put_pixel(final_image,i,j,get_pixel(image, i, j));
+	     }
+
+      }
+   }
+    return final_image;
 }

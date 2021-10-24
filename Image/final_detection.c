@@ -31,15 +31,19 @@ char *create_str(int number, char *str_path)
     //Initialise a pointer/iterable for str_path
     size_t str_path_len = 0;
     //calculate it's length without the \0
-    while (str_path[str_path_len] != 0)
+    while (str_path[str_path_len] != 0){
         str_path_len++;
+    }
     // The format of the file to save 
+    printf("str_path_len -> %zu\n",str_path_len);
     char str_bmp[] = ".bmp";
     //Initialise a pointer/iterable for str_bmp
     size_t str_bmp_len = 0;
     //calculate it's length without the \0
-    while (str_bmp[str_bmp_len] != 0)
+    while (str_bmp[str_bmp_len] != 0){
         str_bmp_len++;
+    }
+    printf("str_bmp_len -> %zu\n",str_bmp_len);
     //Remeber the number, to not loose it after we count its digits
     int rem_num = number;
     // count is a counter of digits
@@ -60,27 +64,34 @@ char *create_str(int number, char *str_path)
         str[i - 1] = (rem_num - (rem_num / 10) * 10) + '0';
         rem_num /= 10;
     }
+    printf("count -> %zu\n",count);
     //Initialise the final size of the output string
-    size_t str_path_malloc_len = str_path_len + count + str_bmp_len;
+    size_t str_path_malloc_len = str_path_len +1+ count + str_bmp_len;
     //Malloc it into the memory
     char *str_path_malloc = malloc((str_path_malloc_len) * sizeof(char));
-    str_path_malloc[str_path_malloc_len] = '\0';
+    str_path_malloc[str_path_malloc_len-1] = '\0';
     //We start by adding ".bmp" at the end of the string
-    for (size_t i = str_bmp_len; i > 0; i--)
+    for (size_t i = str_bmp_len; i > 0; i--){
         str_path_malloc[--str_path_malloc_len] = str_bmp[i - 1];
+    }
+    //tr_path_malloc[str_path_malloc_len]
     //We than add the number
-    for (size_t i = count; i > 0; i--)
+    for (size_t i = count; i > 0; i--){ 
         str_path_malloc[--str_path_malloc_len] = str[i - 1];
+    }
     // We have added the number to the final string,
     //So we can now free it
     free(str);
     //We add the path to the string
-    for (size_t i = str_path_len; i > 0; i--)
+    for (size_t i = str_path_len; i > 0; i--){
+
         str_path_malloc[--str_path_malloc_len] = str_path[i - 1];
+    }
     return str_path_malloc;
 }
 void detect_green(SDL_Surface *image_green, SDL_Surface *original,char *str_path)
 {
+    printf("%s , str\n",str_path);
     size_t h = image_green->h;
     size_t w = image_green->w;
     // Count_numbers represents the case number
@@ -163,9 +174,9 @@ void detect_green(SDL_Surface *image_green, SDL_Surface *original,char *str_path
                     j += 1;
                     num_j += 1;
                 }
-                char *str = create_str(count_numbers,str_path);
-                SDL_SaveBMP(number, str);
-                free(str);
+              //  char *str = create_str(count_numbers,str_path);
+                SDL_SaveBMP(number, "numbers/num");
+              //  free(str);
                 SDL_FreeSurface(number);
 
                 count_numbers += 1;

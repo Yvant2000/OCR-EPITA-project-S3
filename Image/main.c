@@ -1679,21 +1679,13 @@ int main(int argc, char *argv[])
     SDL_Surface *theta_im  = image_theta->image_output;
     SDL_Surface *to_save = rotate(image,image_theta->theta);
     SDL_Surface *image_hor_d = detect_motive_hor(theta_im);
-    /*
-    SDL_Surface *clean = clean_up(image_vert_d);
-    
-    Rotated *image_theta = hough_transform(after_median,after_gaussian_blur);
-    image = image_theta->image_output;
+    SDL_Surface *image_vert_d = detect_motive_vert(theta_im);
+    SDL_Surface *combined = combine_detections(image_hor_d,image_vert_d);
+    SDL_Surface *cleaning = clean_up(combined);
 
-    after_gaussian_blur= rotate(after_gaussian_blur,image_theta->theta);
-    SDL_Surface *image_hor = detect_motive_hor(image);
+    detect_green(cleaning, to_save,argv[2]);
 
-    SDL_Surface *image_vert = detect_motive_vert(image);
-
-    image = clean_up(image_vert);
-
-    detect_green(image_vert, after_gaussian_blur,argv[2]); */
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, image_hor_d);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, cleaning);
     while (!quit)
     {
         SDL_WaitEvent(&event);
@@ -1708,8 +1700,9 @@ int main(int argc, char *argv[])
     }
     SDL_DestroyTexture(texture);
     free(image_theta);
-    SDL_FreeSurface(to_save);
     SDL_FreeSurface(image_hor_d);
+    SDL_FreeSurface(to_save);
+    SDL_FreeSurface(image_vert_d);
     /*
     SDL_FreeSurface(image_hor_d);
     SDL_FreeSurface(theta_im);*/
