@@ -16,6 +16,7 @@
 #include "final_detection.h"
 #include "hough_functions.h"
 
+
 typedef struct Sobel
 {
     SDL_Surface *gradient_intensity;
@@ -1660,6 +1661,7 @@ int main(int argc, char *argv[])
     OtsuBinarization(sobel2, threshold);
     SDL_Surface *hyster = hysteris(sobel2);
     SDL_FreeSurface(sobel2);
+    
     Rotated *image_theta = hough_transform(hyster,image);
     SDL_FreeSurface(hyster);
     SDL_Surface *theta_im  = image_theta->image_output;
