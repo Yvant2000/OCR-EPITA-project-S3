@@ -1,0 +1,14 @@
+In This repository you can see 4 placements:
+
+
+Image (grid detection, rotation, exemples of sudokus), 
+
+Rotation ( image to be rotated, and code), Solver(which contais a 
+
+file that will be parsed in order to get a result file.) Neuro 
+
+(all the logical operations are saved here). Each file has a make file,
+ 
+so just do make, and that will launch your main, additional instructions 
+
+and directions will be given in the terminal
