@@ -1611,9 +1611,20 @@ typedef struct Couple
 //     }
 //     return image;
 // }
+/*
+int str_to_int(char *num) {
+size_t i = 0 ;
+int number = 0;
+while(num[i] != 0){
+number *=10;
+int digit = num[i] - '0';
+number +=digit;
+i+=1;
+}
+return number;
 
-
-
+}
+*/
 int main(int argc, char *argv[])
 {
    if(argc !=3){
@@ -1662,14 +1673,15 @@ int main(int argc, char *argv[])
     SDL_Surface *hyster = hysteris(sobel2);
     SDL_FreeSurface(sobel2);
     
-    Rotated *image_theta = hough_transform(hyster,image);
+  
+    Rotated *image_theta = hough_transform(hyster);
     SDL_FreeSurface(hyster);
     SDL_Surface *theta_im  = image_theta->image_output;
-    //SDL_Surface *to_save = rotate(image,image_theta->theta);
-    free(image_theta);
-    SDL_FreeSurface(image);
-    //SDL_FreeSurface(to_save);
+    SDL_Surface *to_save = rotate(image,image_theta->theta);
+    SDL_Surface *image_hor_d = detect_motive_hor(theta_im);
     /*
+    SDL_Surface *clean = clean_up(image_vert_d);
+    
     Rotated *image_theta = hough_transform(after_median,after_gaussian_blur);
     image = image_theta->image_output;
 
@@ -1681,7 +1693,7 @@ int main(int argc, char *argv[])
     image = clean_up(image_vert);
 
     detect_green(image_vert, after_gaussian_blur,argv[2]); */
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, theta_im);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, image_hor_d);
     while (!quit)
     {
         SDL_WaitEvent(&event);
@@ -1695,7 +1707,12 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(renderer);
     }
     SDL_DestroyTexture(texture);
-    SDL_FreeSurface(theta_im);
+    free(image_theta);
+    SDL_FreeSurface(to_save);
+    SDL_FreeSurface(image_hor_d);
+    /*
+    SDL_FreeSurface(image_hor_d);
+    SDL_FreeSurface(theta_im);*/
     /*
     SDL_FreeSurface(image_hor);
     SDL_FreeSurface(image_vert);*/

@@ -11,6 +11,6 @@ typedef struct Rotated
 } Rotated;
 
 
-Rotated *hough_transform(SDL_Surface *image, SDL_Surface *original);
+Rotated *hough_transform(SDL_Surface *image);
 
 #endif

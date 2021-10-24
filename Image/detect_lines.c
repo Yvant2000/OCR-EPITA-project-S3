@@ -28,10 +28,11 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
         Uint32 pixel = get_pixel(image, i, j);
 
         //If the pixel seen  not is red
-        while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->h)
+        while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < h)
         {
-            j += 1;
+            
             pixel = get_pixel(image, i, j);
+	    j+=1;
         }
         while (j < h)
         {
@@ -41,14 +42,16 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
             //scan untill the red ends
             while (pixel == SDL_MapRGB(image->format, 255, 0, 0) && j < image->h) //while the pixels are red in other words not black
             {
-                j += 1;
+                
                 pixel = get_pixel(image, i, j);
+		j+=1;
             }
             while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->h) //while the pixels are black in other words not red
             {
                 serie += 1;
-                j += 1;
+                
                 pixel = get_pixel(image, i, j);
+		j+=1;
                 if (serie >= h / 5)
                 {
                     serie = 0;
@@ -89,8 +92,9 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
         //If the pixel seen  not is red
         while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->h)
         {
-            j += 1;
+            
             pixel = get_pixel(image, i, j);
+	    j+=1;
         }
         while (j < h)
         {
@@ -100,14 +104,16 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
             //scan untill the red ends
             while (pixel == SDL_MapRGB(image->format, 255, 0, 0) && j < image->h) //while the pixels are red in other words not black
             {
-                j += 1;
+                
                 pixel = get_pixel(image, i, j);
+		j+=1;
             }
             while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->h) //while the pixels are black in other words not red
             {
                 serie += 1;
-                j += 1;
+                
                 pixel = get_pixel(image, i, j);
+		j+=1;
                 if (serie >= h / 5)
                 {
                     serie = 0;
@@ -138,7 +144,6 @@ SDL_Surface *detect_motive_hor(SDL_Surface *image)
         }
     }
     free(ar);
-    free(ar->array_n);
     return image;
 }
 
@@ -162,8 +167,9 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
         //If the pixel seen  not is red
         while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->w)
         {
-            j += 1;
+            
             pixel = get_pixel(image, j, i);
+	    j+=1;
         }
         while (j < w)
         {
@@ -171,8 +177,9 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
 
             while (pixel == SDL_MapRGB(image->format, 255, 0, 0) && j < image->w) //while the pixels are red in other words not black
             {
-                j += 1;
+                
                 pixel = get_pixel(image, j, i);
+		j+=1;
             }
             while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->w) //while the pixels are black in other words not red
             {
@@ -219,19 +226,22 @@ SDL_Surface *detect_motive_vert(SDL_Surface *image)
         //If the pixel seen  not is red
         while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->w)
         {
-            j += 1;
+            
             pixel = get_pixel(image, j, i);
+	    j+=1;
         }
         while (j < w)
         {
             pixel = get_pixel(image, j, i);
             //scan untill the red ends
             while (pixel == SDL_MapRGB(image->format, 255, 0, 0) && j < image->w) //while the pixels are red in other words not black
-                pixel = get_pixel(image, ++j, i);
+                pixel = get_pixel(image, j, i);
+	    j+=1;
 
             while (pixel != SDL_MapRGB(image->format, 255, 0, 0) && j < image->w) //while the pixels are black in other words not red
             {
-                pixel = get_pixel(image, ++j, i);
+                pixel = get_pixel(image, j, i);
+		j+=1;
                 if (++serie >= w / 5)
                 {
                     serie = 0;

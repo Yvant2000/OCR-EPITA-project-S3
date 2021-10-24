@@ -281,11 +281,17 @@ Rotated *hough_transform(SDL_Surface *image)
                 }
             }
         }
+	printf("We are through\n");
         image = rotation_90(image);
+	printf("We are through 90\n");
         image = hough_alligned(image);
+	printf("We are through hough_alligned\n");
         image = rotation_270(image);
+	printf("We are through 270\n");
         image_theta->image_output = image;
+	printf("Image passed \n");
         image_theta->theta = -1;
+	printf("Theta init\n");
     }
     else
     {
@@ -307,9 +313,9 @@ Rotated *hough_transform(SDL_Surface *image)
             }
         }
 	printf("We scanned through\n");
-        image_theta->image_output  = rotate(image, grouped[biggest_theta_occurence].theta);
+        image_theta->image_output  = rotate(image, grouped[biggest_theta_occurence-2].theta);
 	printf("We passed rotation");
-        image_theta->theta = grouped[biggest_theta_occurence].theta;
+        image_theta->theta = grouped[biggest_theta_occurence-2].theta;
 	printf("theta -> %f\n",image_theta->theta);
     }
     free(grouped);

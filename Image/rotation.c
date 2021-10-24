@@ -112,9 +112,9 @@ SDL_Surface *rotate(SDL_Surface *image, double angle)
     if(angle == -1){
         return image;
     }
-    printf("angle -> %f\n",angle);
 
-    int *x_and_y = malloc(sizeof(int) * 2);
+    angle = 3.14159265358979323846 * 2 - angle;
+    printf("angle -> %f\n",angle);
     double cosine = cos(angle);
     double sinus = sin(angle);
     int height = image->h;
@@ -132,6 +132,7 @@ SDL_Surface *rotate(SDL_Surface *image, double angle)
     {
         for (int j = 0; j < height; j++)
         {
+	    int *x_and_y = malloc(sizeof(int) * 2);
             int y = height - 1 - j - original_center_height;
             int x = width - 1 - i - original_center_width;
             x_and_y = new_sheer(angle, x, y);
@@ -139,11 +140,11 @@ SDL_Surface *rotate(SDL_Surface *image, double angle)
             int new_y = x_and_y[1];
             new_y = new_height - new_y;
             new_x = new_width - new_x;
+	     free(x_and_y);
             Uint32 pixel = get_pixel(image, i, j);
             put_pixel(output_image, new_x, new_y, pixel);
         }
     }
-    free(x_and_y);
     SDL_Surface *test = trim(output_image);
     return test;
 }
