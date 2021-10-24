@@ -1,4 +1,3 @@
-
 //gcc src/*.c -o bin/prog -I include -L lib -lmingw32 -lSDL2main -lSDL2
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -1625,6 +1624,59 @@ return number;
 
 }
 */
+
+int thresholding(SDL_Surface* image, double t)
+{
+    int w = image->w;
+    int h = image->h;
+    //bidouiller t si c'est pas précis, 0.4 pour l'image 4, .15 pour le reste
+    //double t = 0.15;
+    int s = fmax(w,h)/16;
+    Uint32 *intImg = malloc(sizeof(Uint32)*w*h);
+    for(int i = 0; i < w; i++)
+    {
+        int sum = 0;
+        for(int j = 0; j < h; j++)
+        {
+            Uint8 pixel = pixel_grey(image,i,j);
+            sum += pixel;
+            if(i==0)
+            {
+                intImg[i*h+j] = sum;
+            }
+            else
+            {
+                intImg[i*h+j] = intImg[(i-1)*h+j]+ sum;
+            }
+        }
+    }
+    for(int i = 0; i <  w; i++)
+    {
+        for(int j = 0; j <  h; j++)
+        {
+            int x1 = fmax(i-s,1);
+            int x2 = fmin(i+s,w-1);
+            int y1 = fmax(j-s,1);
+            int y2 = fmin(j+s,h-1);
+            int count = (x2-x1)*(y2-y1);
+            double sum = intImg[x2*h+y2]-intImg[x2*h+(y1-1)]-intImg[(x1-1)*h+y2]+intImg[(x1-1)*h+(y1-1)];
+            Uint8 pixel = pixel_grey(image, i, j);
+	    if(sum * (1.0 - t) < (pixel * count)){
+		    pixel = 0;
+	    }
+            else
+            {
+                pixel = 255;
+            }
+	    Uint32 pix = SDL_MapRGB(image->format,pixel,pixel,pixel);
+            put_pixel(image, i, j, pix);
+        }
+    }
+    free(intImg);
+    return 0;
+}
+
+
 int main(int argc, char *argv[])
 {
    if(argc !=3){
@@ -1637,15 +1689,26 @@ int main(int argc, char *argv[])
                                           SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1000, 1000, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Surface *image = SDL_LoadBMP(argv[1]);
+    
     //GreyScale for image original
     grey_scale(image);
+    
+    if(SDL_SaveBMP(image,"images/grayscale.bmp")!=0){
+	    printf("Unable to save\n");
+    };
+
     //Do the Gauss
     SDL_Surface *after_gaussian_blur = gaussian_blur(image);
+    SDL_SaveBMP(after_gaussian_blur, "images/gauss.bmp");
     //Do the Median
     SDL_Surface *after_median = median5(after_gaussian_blur);
+    SDL_SaveBMP(after_median, "images/median.bmp");
     //Free Gauss
     SDL_FreeSurface(after_gaussian_blur);
     // Do the sobel
+    SDL_Surface *for_test = SDL_LoadBMP("images/grayscale.bmp");
+    thresholding(for_test,0.4);
+    SDL_SaveBMP(for_test, "images/thresholding.bmp");
     SDL_Surface *image_hor = horizontal_edge_detection_sobel(after_median);
     SDL_Surface *image_vert = vertical_edge_detection_sobel(after_median);
     //Sobel call
@@ -1659,7 +1722,7 @@ int main(int argc, char *argv[])
     SDL_Surface *image_vert1 = vertical_edge_detection_sobel1(after_median);
      //Free Median
     SDL_FreeSurface(after_median);
-    SDL_Surface *sobel1  = combine_sobel(image_hor1,image_vert1);
+     SDL_Surface *sobel1  = combine_sobel(image_hor1,image_vert1);
     //Free Image_hor
     SDL_FreeSurface(image_hor1);
     //Free Image_vert
@@ -1667,25 +1730,33 @@ int main(int argc, char *argv[])
     SDL_Surface *sobel2 = combine_sobel(sobel1,sobel);
     SDL_FreeSurface(sobel);
     SDL_FreeSurface(sobel1);
-
+    SDL_SaveBMP(sobel2,"images/sobel.bmp");
     int threshold = Otsu(sobel2);
     OtsuBinarization(sobel2, threshold);
+    SDL_SaveBMP(sobel2,"images/binary_otsu.bmp");
     SDL_Surface *hyster = hysteris(sobel2);
+    SDL_SaveBMP(hyster,"images/hyster.bmp");
     SDL_FreeSurface(sobel2);
-    
-  
     Rotated *image_theta = hough_transform(hyster);
     SDL_FreeSurface(hyster);
     SDL_Surface *theta_im  = image_theta->image_output;
+    SDL_SaveBMP(theta_im, "images/theta_im.bmp");
     SDL_Surface *to_save = rotate(image,image_theta->theta);
+
     SDL_Surface *image_hor_d = detect_motive_hor(theta_im);
+
     SDL_Surface *image_vert_d = detect_motive_vert(theta_im);
+
     SDL_Surface *combined = combine_detections(image_hor_d,image_vert_d);
+    SDL_SaveBMP(combined,"images/combined.bmp");
+    SDL_FreeSurface(image_hor_d);
+    SDL_FreeSurface(image_vert_d);
     SDL_Surface *cleaning = clean_up(combined);
+    SDL_SaveBMP(cleaning ,  "images/cleaned_combined.bmp");
 
     detect_green(cleaning, to_save,argv[2]);
 
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, cleaning);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer,cleaning );
     while (!quit)
     {
         SDL_WaitEvent(&event);
@@ -1699,11 +1770,14 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(renderer);
     }
     SDL_DestroyTexture(texture);
+    SDL_FreeSurface(cleaning);
+    
+/*
     free(image_theta);
     SDL_FreeSurface(image_hor_d);
     SDL_FreeSurface(to_save);
     SDL_FreeSurface(image_vert_d);
-    /*
+    
     SDL_FreeSurface(image_hor_d);
     SDL_FreeSurface(theta_im);*/
     /*

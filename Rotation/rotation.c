@@ -68,20 +68,19 @@ void put_pixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel)
         break;
     }
 }
-
 SDL_Surface *trim(SDL_Surface *image)
 {
-    int h = image->h;
-    int w = image->w;
+    size_t h = image->h;
+    size_t w = image->w;
     size_t bottom_trim = 0;
     size_t top_trim = 0;
     size_t right_trim = 0;
     size_t left_trim = 0;
 
-    for (int j = h; j > 0; j--)
+    for (size_t j = h-1; j > 0; j--)
     {
-        for (int i = 0; i < w; i++)
-        {
+        for (size_t i = 0; i < w; i++)
+        { //printf("bottom i -> %zu , j -> %zu\n",i,j);
             Uint32 pix = get_pixel(image, i, j);
             //If the pixel is not black
             if (pix != SDL_MapRGB(image->format, 0, 0, 0))
@@ -91,10 +90,10 @@ SDL_Surface *trim(SDL_Surface *image)
             }
         }
     }
-    for (int j = 0; j < h; j++)
+    for (size_t j = 0; j < h; j++)
     {
-        for (int i = 0; i < w; i++)
-        {
+        for (size_t i = 0; i < w; i++)
+        { //printf("top i -> %zu , j -> %zu\n",i,j);
             Uint32 pix = get_pixel(image, i, j);
             //If the pixel is not black
             if (pix != SDL_MapRGB(image->format, 0, 0, 0))
@@ -104,10 +103,10 @@ SDL_Surface *trim(SDL_Surface *image)
             }
         }
     }
-    for (int i = 0; i < w; i++)
+    for (size_t i = 0; i < w; i++)
     {
         for (size_t j = top_trim; j > bottom_trim; j--)
-        {
+        { //printf("right i -> %zu , j -> %zu\n",i,j);
             Uint32 pix = get_pixel(image, i, j);
             //If the pixel is not black
             if (pix != SDL_MapRGB(image->format, 0, 0, 0))
@@ -117,10 +116,10 @@ SDL_Surface *trim(SDL_Surface *image)
             }
         }
     }
-    for (int i = w; i > 0; i--)
+    for (size_t i = w-1; i > 0; i--)
     {
         for (size_t j = top_trim; j > bottom_trim; j--)
-        {
+        { //printf("left i -> %zu , j -> %zu\n",i,j);
             Uint32 pix = get_pixel(image, i, j);
             //If the pixel is not black
             if (pix != SDL_MapRGB(image->format, 0, 0, 0))
@@ -130,9 +129,7 @@ SDL_Surface *trim(SDL_Surface *image)
             }
         }
     }
-    SDL_Surface *output_image = SDL_CreateRGBSurface(
-		    0, w-(right_trim-left_trim), h - 
-		    (top_trim-bottom_trim), 32, 0, 0, 0, 0);
+    SDL_Surface *output_image = SDL_CreateRGBSurface(0, w-(right_trim-left_trim), h - (top_trim-bottom_trim), 32, 0, 0, 0, 0);
     for (size_t i = left_trim; i < right_trim; i++)
     {
         for (size_t j = bottom_trim; j < top_trim; j++)
@@ -144,6 +141,7 @@ SDL_Surface *trim(SDL_Surface *image)
     }
     return output_image;
 }
+
 
 int *new_sheer(double angle, int x, int y)
 {
@@ -212,6 +210,55 @@ SDL_Surface *rotation_270(SDL_Surface *image)
     return rotated;
 }
 
+SDL_Surface *rotate1(SDL_Surface *image, double angle)
+{
+	angle = 360. - angle;
+    if(angle == 270.)
+     {
+        return rotation_270(image);
+     }
+     if(angle == 180.)
+     {
+         return rotation_180(image);
+     }
+     if(angle == 90.)
+     {
+         return rotation_90(image);
+     }
+    
+    double cosine = cos(angle);
+    double sinus = sin(angle);
+    int height = image->h;
+    int width = image->w;
+    int new_height = round(my_abs(height * cosine) +
+            my_abs(width * sinus)) + 1;
+    int new_width = round(my_abs(width * cosine) +
+            my_abs(height * sinus)) + 1;
+    SDL_Surface *output_image = SDL_CreateRGBSurface(0,
+           2* new_width , 2*new_height , 32, 0, 0, 0, 0);
+    int original_center_height = round(((height + 1) / 2) - 1);
+
+    int original_center_width = round(((width + 1) / 2) - 1);
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+        int *x_and_y = malloc(sizeof(int) * 2);
+            int y = height - 1 - j - original_center_height;
+            int x = width - 1 - i - original_center_width;
+            x_and_y = new_sheer(angle, x, y);
+            int new_x = x_and_y[0];
+            int new_y = x_and_y[1];
+            new_y = new_height - new_y;
+            new_x = new_width - new_x;
+         free(x_and_y);
+            Uint32 pixel = get_pixel(image, i, j);
+            put_pixel(output_image, new_x, new_y, pixel);
+        }
+    }
+    SDL_Surface *test = trim(output_image);
+    return test;
+}
 
 SDL_Surface *rotate(SDL_Surface *image, double angle)
 {

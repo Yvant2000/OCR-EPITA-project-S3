@@ -1,9 +1,10 @@
-#include <stdio.h>
+
+#define _GNU_SOURCE
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "basic_pixel.h"
-
-
+#include <stdio.h>
+#include <err.h>
 
 //Calling the function knowing we have just detected greeeeeeeeen
 //It counts the number of greeeeeeeeen occurances in a hor line
@@ -25,6 +26,15 @@ size_t detect_green_vert(SDL_Surface *image, size_t x, size_t y)
     while ((pixel = get_pixel(image, x, y++)) == SDL_MapRGB(image->format, 100, 255, 100))
         count++;
     return count;
+}
+char *create_str1(int number, char *str_path){
+	char *output = NULL;
+	asprintf(&output,"%s%d.bmp",str_path,number);
+	if(!output){
+		errx(1,"Output is null");
+	}
+	return output;
+
 }
 char *create_str(int number, char *str_path)
 {
@@ -174,9 +184,9 @@ void detect_green(SDL_Surface *image_green, SDL_Surface *original,char *str_path
                     j += 1;
                     num_j += 1;
                 }
-              //  char *str = create_str(count_numbers,str_path);
-                SDL_SaveBMP(number, "numbers/num");
-              //  free(str);
+               char *str = create_str1(count_numbers,str_path);
+                SDL_SaveBMP(number, str);
+                free(str);
                 SDL_FreeSurface(number);
 
                 count_numbers += 1;

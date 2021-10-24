@@ -9,5 +9,4 @@
 int Otsu(SDL_Surface* image_surface);
 void OtsuBinarization(SDL_Surface* image, int threshold);
 void Otsu1(SDL_Surface* image);
-
 #endif

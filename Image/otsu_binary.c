@@ -274,7 +274,4 @@ void Otsu1(SDL_Surface* image)
     }
 
 
-
-
-
 }
