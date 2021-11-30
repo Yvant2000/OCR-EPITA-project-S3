@@ -6,7 +6,7 @@ CFLAGS = -Wall -Wextra -std=c99 -O0 -g
 LDFLAGS =
 LDLIBS =
 
-OBJ = Network.o NetworkTraining.o GatesTrainingData.o main.o
+OBJ = Network.o NetworkTraining.o GatesTrainingData.o main.o Image.o
 DEP = ${OBJ:.o=.d}
 
 all:main

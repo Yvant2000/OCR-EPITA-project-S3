@@ -181,7 +181,7 @@ void load_network(Network ** new_network, const char * filename)
                 neuron -> weights[weight_index] = string_to_float(line);
             }
             neuron -> delta_bias = 0.f;
-            neuron -> z = 0.f;  
+            neuron -> z = 0.f;
             neuron -> delta_z = 0.f;
             neuron -> activation = 0.f;
             neuron -> delta_activation = 0.f;
