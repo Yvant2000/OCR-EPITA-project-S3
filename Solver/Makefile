@@ -10,5 +10,9 @@ all: main
 
 main: $(OBJ)
 	gcc  $(CFLAGS) -o $@ $^
+
+clean:
+    ${RM} ${OBJ} 
+    ${RM} main
 	 
 

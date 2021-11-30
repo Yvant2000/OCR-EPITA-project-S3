@@ -194,7 +194,7 @@ void load_network(Network ** new_network, const char * filename)
 
 void print_network(Network* network){
     size_t num_layer = network -> num_layers;
-    printf("Network_old ( (length : %zu)", num_layer);
+    printf("Network ( (length : %zu)", num_layer);
 
     for (size_t layer_index = 0; layer_index < num_layer; layer_index++){
         Layer * layer = network -> layers[layer_index];

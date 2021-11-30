@@ -8,6 +8,9 @@
 int main(int argc, char *argv[])
 {
     int quit = 0;
+
+    if (argc < 3)
+	    printf("Insufficient arguments\n");
     if(argv[1]==NULL){
         printf("Please input a path\n");
         return 1;
@@ -28,7 +31,6 @@ int main(int argc, char *argv[])
     }
     
     int num = str_to_int(argv[2]);
-    printf("%d\n", num);
     image = rotate(image, num);
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, image);
