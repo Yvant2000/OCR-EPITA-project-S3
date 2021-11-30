@@ -12,11 +12,13 @@ int main(){
     Network * network = create_network(sizes, NUM_LAYER);
 
     train_for_xor(network);
-
-    print_network(network);
-
+    //print_network(network);
     test_inputs(network);
+    save_network(network, "test.txt");
+    delete_network(network);
 
+    load_network(&network, "test.txt");
+    test_inputs(network);
     delete_network(network);
 
     return 0;

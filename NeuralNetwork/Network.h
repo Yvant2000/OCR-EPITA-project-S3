@@ -26,7 +26,7 @@ typedef struct Layer{
     Neuron ** neurons;
 }Layer;
 
-typedef struct Network_old{
+typedef struct Network{
     size_t num_layers;
     Layer ** layers;
 }Network;
@@ -34,5 +34,7 @@ typedef struct Network_old{
 Network * create_network(const size_t sizes[], size_t num_layers);
 void print_network(Network* network);
 void delete_network(Network * network);
+void save_network(Network * network, const char * file_name);
+void load_network(Network ** network, const char * filename);
 
 #endif //OCR_EPITA_PROJECT_S3_NETWORK_H

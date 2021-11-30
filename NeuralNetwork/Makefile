@@ -9,7 +9,7 @@ LDLIBS =
 OBJ = Network.o NetworkTraining.o GatesTrainingData.o main.o
 DEP = ${OBJ:.o=.d}
 
-all: main
+all:main
 
 main: ${OBJ}
 

@@ -114,7 +114,6 @@ void feed_forward__(Network * network){
                     neuron -> activation = 0;
                 else
                     neuron -> activation = neuron -> z;
-
                 // Sigmoid Activation function for Output Layer
             else
                 neuron -> activation = sigmoid(neuron -> z);
@@ -148,7 +147,7 @@ float * feed_forward(Network * network, const float * input_data){
 }
 
 
-__attribute__((unused)) void shuffle_data(float ** input_data, float ** expected_output, size_t training_data_size){
+void shuffle_data(float ** input_data, float ** expected_output, size_t training_data_size){
     /*
     ** shuffle_data for input_data and expected_output.
     ** The data stay connected - example :  (abc) (a'b'c') -> (cba) (c'b'a')
@@ -175,7 +174,7 @@ void train_neural_network(Network * network, float ** input_data, float ** expec
 
     // Gradient Descent
     for (size_t epoch = 0; epoch < epochs; epoch++) {  // for each iteration of the training
-        // shuffle_data(input_data, expected_output, data_size);  // shuffle the data for better result on big data
+        shuffle_data(input_data, expected_output, data_size);  // shuffle the data for better result on big data
         for (size_t data_index = 0; data_index < data_size; data_index++) {  // we assume mini_batch = 1
             feed_input(input_neurons, input_size, input_data[data_index]);  // input the data into the first layer
             feed_forward__(network);  // compute the output of the network for the given input
