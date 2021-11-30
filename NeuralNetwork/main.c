@@ -12,8 +12,8 @@ int main(){
     size_t sizes[NUM_LAYER] = {784, 15, 10}; //image = 28*28 = 784
     Network * network = create_network(sizes, NUM_LAYER);
 
-    SDL_Surface * image = load_image("test.jpg");
-    float * array = image_to_array(image);
+    // SDL_Surface * image = load_image("test.jpg");
+    // float * array = image_to_array(image);
 
     //print_network(network);
     save_network(network, "Network.NN");
