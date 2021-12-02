@@ -36,6 +36,7 @@ def create_data() -> None:
             text_size: Tuple[int, int] = font.getsize(digit)
             text_pos: Tuple[int, int] = (image_dims[0] - text_size[0]) // 2, (image_dims[1] - text_size[1]) // 2 - 3
             draw.text(text_pos, digit, text_color, font=font)
+            image = image.point(lambda pixel: pixel > 240 and 255)
             image.save(join('data', f'{font_name}_{digit}.jpg'))
 
 

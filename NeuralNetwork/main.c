@@ -16,18 +16,20 @@ int main(){
     Network * network;
     load_network(&network, "Network.NN");
 
+///////////XOR GATE
 //#define NUM_LAYER 3
 //    size_t sizes[NUM_LAYER] = {2, 3, 1};
 //    Network * network = create_network(sizes, NUM_LAYER);
-
+//
 //    train_for_xor(network);
 //    test_inputs_gate(network);
+//////////////////
+
     //train_for_image(network);
     //test_network_image(network);
     infinite_train(network, "Network.NN");
 
     //print_network(network);
-
     save_network(network, "Network.NN");
     delete_network(network);
 

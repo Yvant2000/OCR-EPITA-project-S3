@@ -103,14 +103,15 @@ void feed_forward__(Network * network){
 
         for(size_t neuron_index = 0; neuron_index < num_neurons; neuron_index++){
             Neuron * neuron = layer -> neurons[neuron_index];
-            neuron -> z = neuron -> bias;
-
+            neuron -> z = 0.f;
 
             for(size_t prev_neuron_index = 0; prev_neuron_index < num_neurons_prev_layer; prev_neuron_index++) {
                 Neuron * prev_layer_neuron = prev_layer -> neurons[prev_neuron_index];
                 neuron -> z  += ((neuron -> weights[prev_neuron_index]) * (prev_layer_neuron -> activation));
             }
             neuron -> z /= (float)num_neurons_prev_layer; //TODO not sure of this line
+
+            neuron -> z += neuron -> bias;
 
             // Relu Activation Function for Hidden Layers
             if(layer_index < num_layers - 1)
