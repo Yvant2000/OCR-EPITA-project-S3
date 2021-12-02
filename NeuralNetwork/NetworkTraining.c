@@ -20,7 +20,6 @@ void update_weights(Network * network, float eta)
             for(size_t weight_index = 0; weight_index < next_layer -> size; weight_index++){ // foreach weight in the neuron
                 Neuron * out_neuron = next_layer -> neurons[weight_index];
                 out_neuron -> weights[neuron_index] -= (eta * neuron -> delta_weights[weight_index]); // set the new value of the weight
-
             }
             neuron -> bias -= (eta * neuron -> delta_bias); // set the new value of the bias
         }
@@ -103,7 +102,9 @@ void feed_forward__(Network * network){
 
         for(size_t neuron_index = 0; neuron_index < num_neurons; neuron_index++){
             Neuron * neuron = layer -> neurons[neuron_index];
-            neuron -> z = 0.f;
+
+            //neuron -> z = 0.f;
+            neuron -> z = neuron -> bias;
 
             for(size_t prev_neuron_index = 0; prev_neuron_index < num_neurons_prev_layer; prev_neuron_index++) {
                 Neuron * prev_layer_neuron = prev_layer -> neurons[prev_neuron_index];
@@ -111,7 +112,8 @@ void feed_forward__(Network * network){
             }
             neuron -> z /= (float)num_neurons_prev_layer; //TODO not sure of this line
 
-            neuron -> z += neuron -> bias;
+            //neuron -> z += neuron -> bias;
+            //printf("%f\n", neuron -> bias);
 
             // Relu Activation Function for Hidden Layers
             if(layer_index < num_layers - 1)

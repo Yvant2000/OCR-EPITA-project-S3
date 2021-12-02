@@ -79,7 +79,7 @@ void train_for_image(Network * network) {
 
     load_data(input_data, output_data, path);
 
-    train_neural_network(network, input_data, output_data, image_count, 500, 0.05f);
+    train_neural_network(network, input_data, output_data, image_count, 100, 0.05f);
 
     for (int index = 0; index < image_count; index++) {
         free(input_data[index]);
@@ -114,20 +114,24 @@ void test_network_image(Network * network)
 
     srand(time(0));
     int score = 0;
-    for (int i = 0; i < 100; i++){
-        size_t random_index = rand() % image_count;
-        float * test_data = input_data[random_index];
-        float * test_expected = output_data[random_index];
+    for (int i = 0; i < image_count; i++){
+        //size_t random_index = rand() % image_count;
+        float * test_data = input_data[i];
+        float * test_expected = output_data[i];
 
         float * test_output = feed_forward(network, test_data);
+
+        for (int j = 0; j < 10; j++) printf("%f ", test_output[j]);
+        printf("\n");
 
         int result = get_max_output(test_output);
         int expected_output = get_max_output(test_expected);
         //printf("Got %d and expected %d\n", result, expected_output);
         score += result == expected_output;
+        // printf("result %d\n", result);
         free(test_output);
     }
-    printf("Score %d / 100\n", score);
+    printf("Score %d / %d\n", score, image_count);
 
     for (int index = 0; index < image_count; index++) {
         free(input_data[index]);
@@ -148,7 +152,7 @@ void infinite_train(Network * network, const char * save_path){
     load_data(input_data, output_data, path);
 
     while(1){
-        train_neural_network(network, input_data, output_data, image_count, 100, 0.05f);
+        train_neural_network(network, input_data, output_data, image_count, 100, 5.f);
         printf("Saving... Don't quit...\n");
         save_network(network, save_path);
         printf("Saved.\n");

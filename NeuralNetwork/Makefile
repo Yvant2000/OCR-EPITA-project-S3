@@ -1,6 +1,6 @@
 # Makefile
 
-CC = gcc -fsanitize=address -lm -D_DEFAULT_SOURCE
+CC = gcc -fsanitize=address -lm -D_DEFAULT_SOURCE -ffast-math
 CPPFLAGS = -MMD
 CFLAGS = -Wall -Wextra -std=c99 -O0 -g
 LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_image
