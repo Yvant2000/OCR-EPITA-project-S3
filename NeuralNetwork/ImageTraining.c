@@ -8,6 +8,8 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include<time.h>
+
 
 static inline int count_files_in_directory(const char * path)
 {
@@ -72,13 +74,12 @@ void train_for_image(Network * network) {
     const char path[] = "./ImageDataBase/data/";
 
     int image_count = count_files_in_directory(path);
-    printf("found %d images in directory\n", image_count);
     float ** input_data = malloc(sizeof (float*) * image_count);
     float ** output_data = malloc(sizeof (float*) * image_count);
 
     load_data(input_data, output_data, path);
 
-    train_neural_network(network, input_data, output_data, image_count, 30, 1.f);
+    train_neural_network(network, input_data, output_data, image_count, 500, 0.05f);
 
     for (int index = 0; index < image_count; index++) {
         free(input_data[index]);
@@ -87,6 +88,68 @@ void train_for_image(Network * network) {
 
     free(input_data);
     free(output_data);
-
-
 }
+
+static inline int get_max_output(float * output_data)
+{
+    int max_index = 0;
+    float max_value = output_data[0];
+    for(int index = 1; index < 10; index++)
+        if (output_data[index] > max_value){
+            max_index = index;
+            max_value = output_data[index];
+        }
+    return max_index;
+}
+void test_network_image(Network * network)
+{
+    const char path[] = "./ImageDataBase/data/";
+
+    int image_count = count_files_in_directory(path);
+
+    float ** input_data = malloc(sizeof (float*) * image_count);
+    float ** output_data = malloc(sizeof (float*) * image_count);
+
+    load_data(input_data, output_data, path);
+
+    srand(time(0));
+    for (int i = 0; i < 10; i++){
+        size_t random_index = rand() % image_count;
+        float * test_data = input_data[random_index];
+        float * test_expected = output_data[random_index];
+
+        float * test_output = feed_forward(network, test_data);
+
+        int result = get_max_output(test_output);
+        int expected_output = get_max_output(test_expected);
+        printf("Got %d and expected %d\n", result, expected_output);
+        free(test_output);
+    }
+
+    for (int index = 0; index < image_count; index++) {
+        free(input_data[index]);
+        free(output_data[index]);
+    }
+
+    free(input_data);
+    free(output_data);
+}
+
+void infinite_train(Network * network, const char * save_path){
+    const char path[] = "./ImageDataBase/data/";
+
+    int image_count = count_files_in_directory(path);
+    float ** input_data = malloc(sizeof (float*) * image_count);
+    float ** output_data = malloc(sizeof (float*) * image_count);
+
+    load_data(input_data, output_data, path);
+
+    while(1){
+        train_neural_network(network, input_data, output_data, image_count, 100, 0.05f);
+        printf("Saving... Don't quit...\n");
+        save_network(network, save_path);
+        printf("Saved.\n");
+        test_network_image(network);
+    }
+}
+

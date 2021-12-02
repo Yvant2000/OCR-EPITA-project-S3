@@ -105,10 +105,12 @@ void feed_forward__(Network * network){
             Neuron * neuron = layer -> neurons[neuron_index];
             neuron -> z = neuron -> bias;
 
+
             for(size_t prev_neuron_index = 0; prev_neuron_index < num_neurons_prev_layer; prev_neuron_index++) {
                 Neuron * prev_layer_neuron = prev_layer -> neurons[prev_neuron_index];
                 neuron -> z  += ((neuron -> weights[prev_neuron_index]) * (prev_layer_neuron -> activation));
             }
+            neuron -> z /= (float)num_neurons_prev_layer; //TODO not sure of this line
 
             // Relu Activation Function for Hidden Layers
             if(layer_index < num_layers - 1)
@@ -179,6 +181,9 @@ void train_neural_network(Network * network, float ** input_data, float ** expec
 
     printf("Start training for %zu epochs...\n", epochs);
     // Gradient Descent
+
+    int tenth = epochs / 10;
+
     for (size_t epoch = 0; epoch < epochs; epoch++) {  // for each iteration of the training
         //shuffle_data(input_data, expected_output, data_size);  // shuffle the data for better result on big data
         for (size_t data_index = 0; data_index < data_size; data_index++) {  // we assume mini_batch = 1
@@ -187,7 +192,8 @@ void train_neural_network(Network * network, float ** input_data, float ** expec
             backdrop(network, expected_output[data_index]);  // compute the error of the network
             update_weights(network, eta);  // update de weights of the network
         }
-        printf("epoch : %zu\n", epoch);
+        if (!(epoch % tenth))
+            printf("epoch : %zu\n", epoch);
     }
     printf("Done.\n");
 }
