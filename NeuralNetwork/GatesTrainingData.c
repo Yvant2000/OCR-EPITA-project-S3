@@ -176,7 +176,7 @@ void print_output(float * output, size_t size){
     printf("\n");
 }
 
-void test_inputs(Network * network){
+void test_inputs_gate(Network * network){
     {
         printf("0 0 ");
         float inputs[] = {0.f, 0.f};

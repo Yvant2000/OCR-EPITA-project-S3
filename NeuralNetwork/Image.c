@@ -6,14 +6,22 @@
 #include <SDL2/SDL_image.h>
 #include <err.h>
 
-SDL_Surface * load_image(char *path)
+void image_init()
+{
+    IMG_Init(IMG_INIT_JPG);
+}
+void image_quit()
+{
+    IMG_Quit();
+}
+
+SDL_Surface *  load_image(char *path)
 {
     // Load an image using SDL_image with format detection.
     // If it fails, die with an error message.
     SDL_Surface * img = IMG_Load(path);
     if (!img)
         errx(3, "can't load %s: %s", path, IMG_GetError());
-
     return img;
 }
 
@@ -46,9 +54,9 @@ float * image_to_array(SDL_Surface * surface)
             Uint32 pixel = get_pixel(surface, x, y);
             Uint8 r, g, b;
             SDL_GetRGB(pixel, surface->format, &r, &g, &b);
-            array[x * 28 + y] = ((float)(r + g + b)) / 3;
+            array[x * 28 + y] = (255.f - ((float)(r + g + b)) / 3) / 255.f;
         }
     }
-
+    SDL_FreeSurface(surface);
     return array;
 }

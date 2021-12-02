@@ -1,6 +1,7 @@
 //
 // Created by Yves-Antoine on 23/10/2021.
 //
+#include <stdio.h>
 #include <stdlib.h>
 #include "Network.h"
 #include "math.h"
@@ -19,6 +20,7 @@ void update_weights(Network * network, float eta)
             for(size_t weight_index = 0; weight_index < next_layer -> size; weight_index++){ // foreach weight in the neuron
                 Neuron * out_neuron = next_layer -> neurons[weight_index];
                 out_neuron -> weights[neuron_index] -= (eta * neuron -> delta_weights[weight_index]); // set the new value of the weight
+
             }
             neuron -> bias -= (eta * neuron -> delta_bias); // set the new value of the bias
         }
@@ -123,8 +125,11 @@ void feed_forward__(Network * network){
 
 void feed_input(Neuron ** neurons, size_t input_layer_size, const float * input){
     /* Feed the input layer with the given input */
-    for(size_t neuron_index = 0; neuron_index < input_layer_size; neuron_index++) // Just set the value of each neuron to the input
-        neurons[neuron_index] -> activation = input[neuron_index];
+    for (size_t neuron_index = 0; neuron_index < input_layer_size; neuron_index++) // Just set the value of each neuron to the input
+    {
+        const float i =  input[neuron_index];
+        neurons[neuron_index] -> activation = i;
+    }
 }
 
 float * feed_forward(Network * network, const float * input_data){
@@ -172,14 +177,17 @@ void train_neural_network(Network * network, float ** input_data, float ** expec
     Neuron ** input_neurons = network -> layers[0] -> neurons;
     size_t input_size = network -> layers[0] -> size;
 
+    printf("Start training for %zu epochs...\n", epochs);
     // Gradient Descent
     for (size_t epoch = 0; epoch < epochs; epoch++) {  // for each iteration of the training
-        shuffle_data(input_data, expected_output, data_size);  // shuffle the data for better result on big data
+        //shuffle_data(input_data, expected_output, data_size);  // shuffle the data for better result on big data
         for (size_t data_index = 0; data_index < data_size; data_index++) {  // we assume mini_batch = 1
             feed_input(input_neurons, input_size, input_data[data_index]);  // input the data into the first layer
             feed_forward__(network);  // compute the output of the network for the given input
             backdrop(network, expected_output[data_index]);  // compute the error of the network
             update_weights(network, eta);  // update de weights of the network
         }
+        printf("epoch : %zu\n", epoch);
     }
+    printf("Done.\n");
 }

@@ -154,6 +154,8 @@ void load_network(Network ** new_network, const char * filename)
         exit(1);
     }
 
+    size_t layer_sizes[256] = {0};
+
     size_t num_weights = 0;
     char line[256];
     fgets(line, sizeof(line), file); // skip first line
@@ -167,6 +169,8 @@ void load_network(Network ** new_network, const char * filename)
         fgets(line, sizeof(line), file); // Get the size of the layer
         layer -> size = string_to_size_t(line);
 
+        layer_sizes[layer_index] = layer -> size;
+
         layer -> neurons = malloc(sizeof (Neuron *) * layer -> size);
         for (size_t neuron_index = 0; neuron_index < layer -> size; neuron_index++){
             Neuron * neuron = malloc(sizeof (Neuron));
@@ -175,7 +179,7 @@ void load_network(Network ** new_network, const char * filename)
             neuron -> bias = string_to_float(line);
 
             neuron -> weights = malloc(sizeof (float) * num_weights);
-            neuron -> delta_weights = malloc(sizeof (float) * num_weights);
+            //neuron -> delta_weights = malloc(sizeof (float) * num_weights);
             for (size_t weight_index = 0;weight_index < num_weights; weight_index++) {
                 fgets(line, sizeof(line), file); // Get weights of the neuron
                 neuron -> weights[weight_index] = string_to_float(line);
@@ -189,6 +193,12 @@ void load_network(Network ** new_network, const char * filename)
         num_weights = layer -> size;
     }
     fclose(file);
+
+    for (size_t layer_index = 0; layer_index < network -> num_layers; layer_index++)
+        for(size_t neuron_index = 0; neuron_index < network -> layers[layer_index] -> size; neuron_index++)
+            network -> layers[layer_index] -> neurons[neuron_index] -> delta_weights
+            = malloc(sizeof (float) * layer_sizes[layer_index + 1]);
+
     (*new_network) = network;
 }
 
@@ -207,13 +217,13 @@ void print_network(Network* network){
 
             printf("\n        Neuron { ");
             if (num_weight){
-                printf("(bias : %f - links : %zu)\n                <\n                    %f",
+                printf("(bias : %f - links : %zu)\n                <    %f",
                        neuron -> bias, num_weight, neuron -> weights[0]);
 
                 for (size_t weight_index = 1; weight_index < num_weight; weight_index++)
-                    printf(",\n                    %f", neuron -> weights[weight_index]);
+                    printf(",    %f", neuron -> weights[weight_index]);
 
-                printf("\n                >\n       ");
+                printf("    >\n       ");
             } else
                 printf("INPUT");
             printf(" }");

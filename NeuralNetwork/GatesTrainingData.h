@@ -11,6 +11,6 @@ void train_for_or(Network * network);
 void train_for_and(Network * network);
 void train_for_nand(Network * network);
 
-void test_inputs(Network * network);
+void test_inputs_gate(Network * network);
 
 #endif //OCR_GATESTRAININGDATA_H
