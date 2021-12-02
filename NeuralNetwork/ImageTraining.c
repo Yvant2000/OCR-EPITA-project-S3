@@ -113,7 +113,8 @@ void test_network_image(Network * network)
     load_data(input_data, output_data, path);
 
     srand(time(0));
-    for (int i = 0; i < 10; i++){
+    int score = 0;
+    for (int i = 0; i < 100; i++){
         size_t random_index = rand() % image_count;
         float * test_data = input_data[random_index];
         float * test_expected = output_data[random_index];
@@ -122,9 +123,11 @@ void test_network_image(Network * network)
 
         int result = get_max_output(test_output);
         int expected_output = get_max_output(test_expected);
-        printf("Got %d and expected %d\n", result, expected_output);
+        //printf("Got %d and expected %d\n", result, expected_output);
+        score += result == expected_output;
         free(test_output);
     }
+    printf("Score %d / 100\n", score);
 
     for (int index = 0; index < image_count; index++) {
         free(input_data[index]);
