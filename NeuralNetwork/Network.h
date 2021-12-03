@@ -8,17 +8,17 @@
 #include <stddef.h>
 
 typedef struct Neuron{
-    float bias;
-    float delta_bias;
+    double bias;
+    double delta_bias;
 
-    float z;
-    float delta_z;
+    double z;
+    double delta_z;
 
-    float activation;
-    float delta_activation;
+    double activation;
+    double delta_activation;
 
-    float * weights;
-    float * delta_weights;
+    double * weights;
+    double * delta_weights;
 } Neuron;
 
 typedef struct Layer{

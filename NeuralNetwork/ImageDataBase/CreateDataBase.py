@@ -30,14 +30,16 @@ def create_data() -> None:
         font: ImageFont = ImageFont.truetype(font_path, font_size)
         font_name: str = font_path.split(sep)[-1]
 
-        for digit in digit_list:  # digit: int
+        # if not font_name == "SourceSans3-Semibold.otf":
+        #     continue
+0        for digit in digit_list:  # digit: int
             image: Image = Image.new('RGB', image_dims, color=background_color)
             draw: Draw = Draw(image)
             text_size: Tuple[int, int] = font.getsize(digit)
             text_pos: Tuple[int, int] = (image_dims[0] - text_size[0]) // 2, (image_dims[1] - text_size[1]) // 2 - 3
             draw.text(text_pos, digit, text_color, font=font)
             image = image.point(lambda pixel: pixel > 240 and 255)
-            image.save(join('data', f'{font_name}_{digit}.jpg'))
+            image.save(join('data', f'{font_name}_{digit}.bmp'))
 
 
 if __name__ == "__main__":

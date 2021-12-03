@@ -7,37 +7,42 @@
 #include <string.h>
 
 typedef struct Neuron{
-    float bias;
-    float delta_bias;
+    double bias;
+    double delta_bias;
 
-    float z;
-    float delta_z;
+    double z;
+    double delta_z;
 
-    float activation;
-    float delta_activation;
+    double activation;
+    double delta_activation;
 
-    float * weights;
-    float * delta_weights;
+    double * weights;
+    double * delta_weights;
 } Neuron;
+
+static inline double Random()
+{
+    return ((double)rand()) / ((double)RAND_MAX / 2.) - 1.; // NOLINT(cert-msc50-cpp)
+}
 
 Neuron * create_neuron(size_t num_weights, size_t num_out_weights){
     Neuron * neuron = (Neuron *) malloc(sizeof (Neuron));
 
-    float * weights = malloc(sizeof (float) * num_weights);
+    double * weights = malloc(sizeof (double) * num_weights);
     for(size_t weight_index = 0; weight_index < num_weights; weight_index++)
-        weights[weight_index] = ((float)(rand() % 10) )/ 10.f;  // NOLINT(cert-msc50-cpp)
+        weights[weight_index] = Random();
 
-    neuron -> bias = ((float)(rand() % 10) )/ 10.f;  // NOLINT(cert-msc50-cpp)
+    neuron -> bias = Random();
     neuron -> delta_bias = 0.f;
 
-    neuron -> z = 0.f;
-    neuron -> delta_z = 0.f;
+    neuron -> z = 0.;
+    neuron -> delta_z = 0.;
 
-    neuron -> activation = 0.f;
-    neuron -> delta_activation = 0.f;
+    neuron -> activation = 0.;
+    neuron -> delta_activation = 0.;
 
     neuron -> weights = weights;
-    neuron -> delta_weights = (float*) calloc(num_out_weights,  sizeof(float));
+    neuron -> delta_weights = (double*) calloc(num_out_weights,  sizeof(double));
 
     return neuron;
 } // create_neuron
@@ -121,9 +126,9 @@ void save_network(Network * network, const char * file_name)
         fprintf(file, "%zu\n", layer -> size);
         for (size_t neuron_index = 0; neuron_index < layer -> size; neuron_index++){
             Neuron * neuron = layer -> neurons[neuron_index];
-            fprintf(file, "%f\n", neuron -> bias);
+            fprintf(file, "%lf\n", neuron -> bias);
             for (size_t weight_index = 0; weight_index < num_weights; weight_index++)
-                fprintf(file, "%f\n", neuron -> weights[weight_index]);
+                fprintf(file, "%lf\n", neuron -> weights[weight_index]);
         }
         num_weights = layer -> size;
     }
@@ -137,11 +142,11 @@ static size_t string_to_size_t(const char * string)
     return i;
 }
 
-static float string_to_float(const char * string)
+static double string_to_double(const char * string)
 {
-    float f;
-    sscanf(string, "%f", &f);
-    return f;
+    double d;
+    sscanf(string, "%lf", &d);
+    return d;
 }
 
 void load_network(Network ** new_network, const char * filename)
@@ -176,19 +181,19 @@ void load_network(Network ** new_network, const char * filename)
             Neuron * neuron = malloc(sizeof (Neuron));
             layer -> neurons[neuron_index] = neuron;
             fgets(line, sizeof(line), file); // Get bias of the neuron
-            neuron -> bias = string_to_float(line);
+            neuron -> bias = string_to_double(line);
 
-            neuron -> weights = malloc(sizeof (float) * num_weights);
-            //neuron -> delta_weights = malloc(sizeof (float) * num_weights);
+            neuron -> weights = malloc(sizeof (double) * num_weights);
+            //neuron -> delta_weights = malloc(sizeof (double) * num_weights);
             for (size_t weight_index = 0;weight_index < num_weights; weight_index++) {
                 fgets(line, sizeof(line), file); // Get weights of the neuron
-                neuron -> weights[weight_index] = string_to_float(line);
+                neuron -> weights[weight_index] = string_to_double(line);
             }
-            neuron -> delta_bias = 0.f;
-            neuron -> z = 0.f;
-            neuron -> delta_z = 0.f;
-            neuron -> activation = 0.f;
-            neuron -> delta_activation = 0.f;
+            neuron -> delta_bias = 0.;
+            neuron -> z = 0.;
+            neuron -> delta_z = 0.;
+            neuron -> activation = 0.;
+            neuron -> delta_activation = 0.;
         }
         num_weights = layer -> size;
     }
@@ -197,7 +202,7 @@ void load_network(Network ** new_network, const char * filename)
     for (size_t layer_index = 0; layer_index < network -> num_layers; layer_index++)
         for(size_t neuron_index = 0; neuron_index < network -> layers[layer_index] -> size; neuron_index++)
             network -> layers[layer_index] -> neurons[neuron_index] -> delta_weights
-            = malloc(sizeof (float) * layer_sizes[layer_index + 1]);
+            = malloc(sizeof (double) * layer_sizes[layer_index + 1]);
 
     (*new_network) = network;
 }
@@ -217,11 +222,11 @@ void print_network(Network* network){
 
             printf("\n        Neuron { ");
             if (num_weight){
-                printf("(bias : %f - links : %zu)\n                <    %f",
+                printf("(bias : %lf - links : %zu)\n                <    %lf",
                        neuron -> bias, num_weight, neuron -> weights[0]);
 
                 for (size_t weight_index = 1; weight_index < num_weight; weight_index++)
-                    printf(",    %f", neuron -> weights[weight_index]);
+                    printf(",    %lf", neuron -> weights[weight_index]);
 
                 printf("    >\n       ");
             } else

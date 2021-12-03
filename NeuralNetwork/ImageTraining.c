@@ -32,16 +32,15 @@ static inline int extract_digit(char * name)
     return name[length - 5] - (int)'0';
 }
 
-static inline float * int_to_data_array(int digit)
+static inline double * int_to_data_array(int digit)
 {
-    float * data = calloc(10, sizeof (float));
-    data[digit] = 1.f;
+    double * data = calloc(10, sizeof (double));
+    data[digit] = 1.;
     return data;
 }
 
-static inline void load_data(float ** input_data, float ** output_data, const char * path)
+static inline void load_data(double ** input_data, double ** output_data, const char * path)
 {
-    image_init();
     DIR *d = opendir(path);
     struct dirent *dir;
     size_t index = 0;
@@ -63,7 +62,6 @@ static inline void load_data(float ** input_data, float ** output_data, const ch
         }
         closedir(d);
     }
-    image_quit();
 }
 
 void train_for_image(Network * network) {
@@ -74,12 +72,13 @@ void train_for_image(Network * network) {
     const char path[] = "./ImageDataBase/data/";
 
     int image_count = count_files_in_directory(path);
-    float ** input_data = malloc(sizeof (float*) * image_count);
-    float ** output_data = malloc(sizeof (float*) * image_count);
+    double ** input_data = malloc(sizeof (double*) * image_count);
+    double ** output_data = malloc(sizeof (double*) * image_count);
 
     load_data(input_data, output_data, path);
 
-    train_neural_network(network, input_data, output_data, image_count, 100, 0.05f);
+    train_neural_network(network, input_data, output_data,
+                         image_count, 1000, 0.5);
 
     for (int index = 0; index < image_count; index++) {
         free(input_data[index]);
@@ -90,15 +89,17 @@ void train_for_image(Network * network) {
     free(output_data);
 }
 
-static inline int get_max_output(float * output_data)
+static inline int get_max_output(double * output_data)
 {
     int max_index = 0;
-    float max_value = output_data[0];
-    for(int index = 1; index < 10; index++)
+    double max_value = output_data[0];
+    for (int index = 1; index < 10; index++) {
         if (output_data[index] > max_value){
             max_index = index;
             max_value = output_data[index];
         }
+    }
+
     return max_index;
 }
 void test_network_image(Network * network)
@@ -107,8 +108,8 @@ void test_network_image(Network * network)
 
     int image_count = count_files_in_directory(path);
 
-    float ** input_data = malloc(sizeof (float*) * image_count);
-    float ** output_data = malloc(sizeof (float*) * image_count);
+    double ** input_data = malloc(sizeof (double*) * image_count);
+    double ** output_data = malloc(sizeof (double*) * image_count);
 
     load_data(input_data, output_data, path);
 
@@ -116,13 +117,14 @@ void test_network_image(Network * network)
     int score = 0;
     for (int i = 0; i < image_count; i++){
         //size_t random_index = rand() % image_count;
-        float * test_data = input_data[i];
-        float * test_expected = output_data[i];
+        double * test_data = input_data[i];
+        double * test_expected = output_data[i];
 
-        float * test_output = feed_forward(network, test_data);
+        double * test_output = feed_forward(network, test_data);
 
-        for (int j = 0; j < 10; j++) printf("%f ", test_output[j]);
-        printf("\n");
+//        for (int j = 0; j < 10; j++)
+//            printf("%lf ", test_output[j]);
+//        printf("\n");
 
         int result = get_max_output(test_output);
         int expected_output = get_max_output(test_expected);
@@ -146,13 +148,13 @@ void infinite_train(Network * network, const char * save_path){
     const char path[] = "./ImageDataBase/data/";
 
     int image_count = count_files_in_directory(path);
-    float ** input_data = malloc(sizeof (float*) * image_count);
-    float ** output_data = malloc(sizeof (float*) * image_count);
+    double ** input_data = malloc(sizeof (double*) * image_count);
+    double ** output_data = malloc(sizeof (double*) * image_count);
 
     load_data(input_data, output_data, path);
 
     while(1){
-        train_neural_network(network, input_data, output_data, image_count, 100, 5.f);
+        train_neural_network(network, input_data, output_data, image_count, 100, 0.4);
         printf("Saving... Don't quit...\n");
         save_network(network, save_path);
         printf("Saved.\n");
