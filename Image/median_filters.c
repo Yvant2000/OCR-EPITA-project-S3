@@ -57,5 +57,6 @@ SDL_Surface *median5(SDL_Surface *image)
             put_pixel(image_coppy, i, j, pixel_new);
         }
     }
+    SDL_FreeSurface(image);
     return image_coppy;
 }

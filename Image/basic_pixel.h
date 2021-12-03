@@ -12,4 +12,6 @@ void put_pixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel);
 
 Uint8 pixel_grey(SDL_Surface *image, unsigned int i, unsigned int j);
 
+void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
+
 #endif

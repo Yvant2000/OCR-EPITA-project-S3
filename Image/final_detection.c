@@ -27,15 +27,9 @@ size_t detect_green_vert(SDL_Surface *image, size_t x, size_t y)
         count++;
     return count;
 }
-char *create_str1(int number, char *str_path){
-	char *output = NULL;
-	asprintf(&output,"%s%d.bmp",str_path,number);
-	if(!output){
-		errx(1,"Output is null");
-	}
-	return output;
 
-}
+
+
 char *create_str(int number, char *str_path)
 {
     //Initialise a pointer/iterable for str_path
@@ -45,7 +39,7 @@ char *create_str(int number, char *str_path)
         str_path_len++;
     }
     // The format of the file to save 
-    printf("str_path_len -> %zu\n",str_path_len);
+    //printf("str_path_len -> %zu\n",str_path_len);
     char str_bmp[] = ".bmp";
     //Initialise a pointer/iterable for str_bmp
     size_t str_bmp_len = 0;
@@ -53,7 +47,7 @@ char *create_str(int number, char *str_path)
     while (str_bmp[str_bmp_len] != 0){
         str_bmp_len++;
     }
-    printf("str_bmp_len -> %zu\n",str_bmp_len);
+    //printf("str_bmp_len -> %zu\n",str_bmp_len);
     //Remeber the number, to not loose it after we count its digits
     int rem_num = number;
     // count is a counter of digits
@@ -99,9 +93,10 @@ char *create_str(int number, char *str_path)
     }
     return str_path_malloc;
 }
+
 void detect_green(SDL_Surface *image_green, SDL_Surface *original,char *str_path)
 {
-    printf("%s , str\n",str_path);
+    // printf("%s , str\n",str_path);
     size_t h = image_green->h;
     size_t w = image_green->w;
     // Count_numbers represents the case number
@@ -137,9 +132,9 @@ void detect_green(SDL_Surface *image_green, SDL_Surface *original,char *str_path
                     i += 1;
                     continue;
                 }
-                printf(" number %d -> corner i %zu, j %zu\n", count_numbers, i, j);
-                printf("h/w -> %f , w/h -> %f, new_h -> %zu , new_w -> %zu\n", divh_w, divw_h, new_detected_h, new_detected_w);
-                printf("%d\n", ((double)new_detected_h < 40. || (double)new_detected_w < 40.));
+                // printf(" number %d -> corner i %zu, j %zu\n", count_numbers, i, j);
+                // printf("h/w -> %f , w/h -> %f, new_h -> %zu , new_w -> %zu\n", divh_w, divw_h, new_detected_h, new_detected_w);
+                // printf("%d\n", ((double)new_detected_h < 40. || (double)new_detected_w < 40.));
 
                 //Else it looks like a cube structure
                 //Create a placement for it

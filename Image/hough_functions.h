@@ -10,7 +10,7 @@ typedef struct Rotated
     double theta;
 } Rotated;
 
-
-Rotated *hough_transform(SDL_Surface *image);
+SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned);
+SDL_Surface *hough_alligned(SDL_Surface *image,double thresh);
 
 #endif

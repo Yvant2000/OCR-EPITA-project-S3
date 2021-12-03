@@ -9,6 +9,12 @@ static inline Uint8 *pixel_ref(SDL_Surface *surf, unsigned x, unsigned y)
     return (Uint8 *)surf->pixels + y * surf->pitch + x * bpp;
 }
 
+void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
+{
+      Uint8 *target_pixel = (Uint8 *)surface->pixels + y * surface->pitch + x * 4;
+      *(Uint32 *)target_pixel = pixel;
+}
+
 // Gets a physical Uint32 pixel from SDL_Surface image
 Uint32 get_pixel(SDL_Surface *surface, unsigned x, unsigned y)
 {

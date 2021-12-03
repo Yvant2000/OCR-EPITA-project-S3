@@ -316,3 +316,24 @@ SDL_Surface *final_image = SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);
    }
     return final_image;
 }
+
+void convolve(SDL_Surface *image_0,SDL_Surface *image_1,SDL_Surface *image_2, SDL_Surface *image_3, SDL_Surface *image_4, SDL_Surface *place)
+{   
+    int h = image_0->h;
+    int w = image_0->w;
+    for (int i = 0; i < w; i++)
+    {
+        for (int j = 0; j < h; j++)
+        {
+            int pix0 = pixel_grey(image_0,i,j);
+            int pix1 = pixel_grey(image_1,i,j);
+            int pix2 = pixel_grey(image_2,i,j);
+            int pix3 = pixel_grey(image_3,i,j);
+            int pix4 = pixel_grey(image_4,i,j);
+            int new_pix = (pix0 + pix1 + pix2 + pix3 + pix4)/5;
+            Uint32 final_pix = SDL_MapRGB(place->format,new_pix,new_pix,new_pix);
+            put_pixel(place,i,j,final_pix);
+        }
+    }
+    
+}

@@ -3,6 +3,7 @@
 #include <SDL2/SDL_image.h>
 #include "basic_pixel.h"
 
+
 void detect_beg_end_incolumn(SDL_Surface *image, int division, int borders[2], int column, int significant)
 {
     int global = 1;
@@ -64,7 +65,7 @@ void detect_beg_end_incolumn(SDL_Surface *image, int division, int borders[2], i
 }
 //Exactly the same algorithm as the column detection but applied to a vertical line
 
-void detect_beg_end_inline(SDL_Surface *image, int division, int borders[2], int line, int significant)
+void detect_beg_end_inline(SDL_Surface *image,  struct list *borders, int line)
 {
     int global = 1;
     int w = image->w;
@@ -76,7 +77,7 @@ void detect_beg_end_inline(SDL_Surface *image, int division, int borders[2], int
     {
         if (black)
         {
-            for (int i = 0; global < w && (pixel_grey(image, global, line) < division); i++)
+            for (int i = 0; global < w && (pixel_grey(image, global, line) == 0); i++)
             {
                 global += 1;
             }
@@ -86,13 +87,13 @@ void detect_beg_end_inline(SDL_Surface *image, int division, int borders[2], int
         if (white)
         {
             int white_occurence = 0;
-            for (int i = 0; global < w && (pixel_grey(image, global, line) >= division); i++)
+            for (int i = 0; global < w && (pixel_grey(image, global, line) == 255); i++)
             {
                 global += 1;
                 white_occurence += 1;
             }
 
-            if (white_occurence > significant)
+            if (white_occurence > w * 0.1)
             {
                 if (first_cordinate == 0)
                 {
@@ -115,15 +116,14 @@ void detect_beg_end_inline(SDL_Surface *image, int division, int borders[2], int
             }
         }
     }
-    borders[0] = first_cordinate;
-    borders[1] = last_cordinate;
 }
-void trace_beg_end_line(SDL_Surface *image,  int division, int significant)
+
+void trace_beg_end_line(SDL_Surface *image)
 {
-    int borders[2] = {0, 0};
+    int *borders = NULL;
     for (int i = 0; i < image->h; i++)
     {
-        detect_beg_end_inline(image, division, borders, i, significant);
+        detect_beg_end_inline(image, borders, i);
         for (int j = borders[0] + 1; j < borders[1]; j++)
         {
             Uint32 pixel1_new = SDL_MapRGB(image->format, 255, 2, 2);
