@@ -140,7 +140,7 @@ void load_network(Network ** new_network, const char * filename)
 
     FILE * file = fopen(filename, "r");
     if (file == NULL){
-        printf("\"%s\" can't be opened. Make sure the file exist.", filename);
+        printf("\"%s\" can't be opened. Make sure the file exist.\n", filename);
         exit(1);
     }
 
