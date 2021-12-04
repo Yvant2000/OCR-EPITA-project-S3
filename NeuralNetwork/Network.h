@@ -9,16 +9,9 @@
 
 typedef struct Neuron{
     double bias;
-    double delta_bias;
-
-    double z;
     double delta_z;
-
     double activation;
-    double delta_activation;
-
     double * weights;
-    double * delta_weights;
 } Neuron;
 
 typedef struct Layer{

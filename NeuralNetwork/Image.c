@@ -6,7 +6,7 @@
 #include <SDL2/SDL_image.h>
 #include <err.h>
 
-SDL_Surface *  load_image(char *path)
+SDL_Surface *  load_image(const char *path)
 {
     // Load an image using SDL_image with format detection.
     // If it fails, die with an error message.

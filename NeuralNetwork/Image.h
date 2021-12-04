@@ -7,7 +7,7 @@
 
 #include <SDL2/SDL.h>
 
-SDL_Surface * load_image(char *path);
+SDL_Surface * load_image(const char *path);
 double * image_to_array(SDL_Surface * surface);
 
 #endif //OCR_EPITA_PROJECT_S3_IMAGE_H

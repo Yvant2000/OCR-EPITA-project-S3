@@ -154,7 +154,11 @@ void infinite_train(Network * network, const char * save_path){
     load_data(input_data, output_data, path);
 
     while(1){
-        train_neural_network(network, input_data, output_data, image_count, 100, 0.4);
+        train_neural_network(network, input_data,
+                             output_data,
+                             image_count,
+                             100,
+                             0.4);
         printf("Saving... Don't quit...\n");
         save_network(network, save_path);
         printf("Saved.\n");
@@ -162,3 +166,21 @@ void infinite_train(Network * network, const char * save_path){
     }
 }
 
+double * image_to_recognized_array(Network * network, const char * image_path)
+{
+    double * input_data =  image_to_array(load_image(image_path));
+    double * test_output = feed_forward(network, input_data);
+    free(input_data);
+    return test_output;
+}
+
+
+
+int image_to_digit(Network * network, const char * image_path)
+{
+    double * test_output = image_to_recognized_array(network, image_path);
+    int result = get_max_output(test_output);
+
+    free(test_output);
+    return result;
+}

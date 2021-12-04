@@ -37,7 +37,6 @@ void update_weights(Network * network, double eta)
 
             for(size_t prev_layer_neuron_index = 0; prev_layer_neuron_index < num_neurons_prev_layer; prev_layer_neuron_index++){ // foreach weight in the neuron
                 Neuron * prev_layer_neuron = prev_layer -> neurons[prev_layer_neuron_index];
-                //prev_layer_neuron -> weights[neuron_index] -= eta * neuron -> delta_weights[prev_layer_neuron_index]; // set the new value of the weight
                 double delta_weight = neuron -> delta_z * prev_layer_neuron -> activation;
                 neuron -> weights[prev_layer_neuron_index] += eta * delta_weight;
             }
@@ -50,23 +49,13 @@ void backdrop(Network * network, const double * expected_output)
     // Output Layer
 
     Layer * output_layer = network -> layers[network -> num_layers - 1];
-    Layer * prev_output_layer = network -> layers[network -> num_layers - 2];
     size_t num_neurons_output_layer = output_layer -> size;
     //size_t num_neuron_weights = prev_output_layer -> size;
 
     // Compute error from the input
     for(size_t neuron_index = 0; neuron_index < num_neurons_output_layer; neuron_index++){  // foreach neuron in the output layer
         Neuron * neuron = output_layer -> neurons[neuron_index];
-        //neuron -> delta_z = (neuron -> activation - expected_output[neuron_index]) * (neuron -> activation) * (1 - neuron -> activation);
         neuron -> delta_z = sigmoid_prime(neuron -> activation) * (expected_output[neuron_index] - neuron -> activation);
-
-//        for(size_t weight_index = 0; weight_index < num_neuron_weights; weight_index++){ // foreach weight of the neuron
-//            Neuron * prev_layer_neuron = prev_output_layer -> neurons[weight_index];
-//            prev_layer_neuron -> delta_weights[neuron_index] = (neuron -> delta_z * prev_layer_neuron -> activation); // compute the difference between the
-//            prev_layer_neuron -> delta_activation = neuron -> weights[weight_index] * neuron -> delta_z;              // expected output and the actual output
-//        }
-//
-//        neuron -> delta_bias = neuron -> delta_z;
     }
 
     // Compute error for Hidden Layers
@@ -80,18 +69,6 @@ void backdrop(Network * network, const double * expected_output)
         for(size_t neuron_index = 0; neuron_index < num_neurons; neuron_index++){ // foreach neuron in the neuron
             Neuron * neuron = layer -> neurons[neuron_index];
 
-//            if(neuron -> z >= 0)
-//                neuron -> delta_z = neuron -> delta_activation;
-//            else
-//                neuron -> delta_z = 0.;
-
-//            for(size_t weight_index = 0; weight_index < num_weights; weight_index++){ // foreach weight in the neuron
-//                Neuron * prev_layer_neuron = prev_layer -> neurons[weight_index];
-//                prev_layer_neuron -> delta_weights[neuron_index] = neuron -> delta_z * prev_layer_neuron -> activation; // update the delta for the next neurons
-//
-//                if(layer_index > 1)
-//                    prev_layer -> neurons[weight_index] -> delta_activation = neuron -> weights[weight_index] * neuron -> delta_z;
-//            }
 
             double sum = 0;
             for (size_t prev_neuron_index = 0; prev_neuron_index < num_neurons_prev_layer; prev_neuron_index++){
@@ -100,7 +77,6 @@ void backdrop(Network * network, const double * expected_output)
             }
             neuron -> delta_z = sigmoid_prime(neuron -> activation) * sum;
 
-            //neuron -> delta_bias = neuron -> delta_z;
         }
     }
 }
@@ -118,25 +94,12 @@ void feed_forward__(Network * network){
         for(size_t neuron_index = 0; neuron_index < num_neurons; neuron_index++){
             Neuron * neuron = layer -> neurons[neuron_index];
 
-            neuron -> z = neuron -> bias;
-
+            double sum = 0;
             for(size_t prev_neuron_index = 0; prev_neuron_index < num_neurons_prev_layer; prev_neuron_index++) {
                 Neuron * prev_layer_neuron = prev_layer -> neurons[prev_neuron_index];
-                neuron -> z += ((neuron -> weights[prev_neuron_index]) * (prev_layer_neuron -> activation));
+                sum += ((neuron -> weights[prev_neuron_index]) * (prev_layer_neuron -> activation));
             }
-
-            // Relu Activation Function for Hidden Layers
-
-//            if(layer_index < num_layers - 1)
-//                if((neuron -> z) < 0)
-//                    neuron -> activation = 0;
-//                else
-//                    neuron -> activation = neuron -> z;
-//                // Sigmoid Activation function for Output Layer
-//            else
-//                neuron -> activation = sigmoid(neuron -> z);
-
-            neuron -> activation = sigmoid(neuron -> z);
+            neuron -> activation = sigmoid(neuron -> bias + sum);
         }
     }
 }
