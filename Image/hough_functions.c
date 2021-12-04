@@ -330,7 +330,6 @@ SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned)
     }
     //Thetas initialised to have degrees values set for each angle
     int biggest_pix_occurence = 0;
-    double most_occurent_theta = 0.;
     for (double y = 7; y < h - 7; y++)
     {
         for (double x = 7; x < w - 7; x++)
@@ -359,7 +358,6 @@ SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned)
                     if (biggest_pix_occurence < new_pix_occurence)
                     {
                         biggest_pix_occurence = new_pix_occurence;
-                        most_occurent_theta = current_theta;
                     }
                 }
             }

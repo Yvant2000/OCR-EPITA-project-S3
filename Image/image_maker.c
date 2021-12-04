@@ -55,12 +55,6 @@ SDL_Surface *create_image(char *path)
     SDL_Surface *grid = SDL_CreateRGBSurface(0, 461, 461, 32, 0, 0, 0, 0);
     int *matrix = malloc(sizeof(int) * 81);
     matrix = parse_file(path);
-    printf("Matrix\n");
-    for (size_t i = 0; i < 81; i++)
-    {
-        printf("%d, ",matrix[i]);
-    }
-    printf("\n");
     int x_start = 2;
     int y_start = 2;
     for (int i = 0; i < 9; i++)
@@ -68,12 +62,10 @@ SDL_Surface *create_image(char *path)
         for (int j = 0; j < 9; j++)
         {
             int num = matrix[(i * 9) + j];
-            printf("num-> %d\n",num);
             SDL_Surface *number = SDL_LoadBMP(numbers[num-1]);
-            printf("x -> %d , y -> %d \n",x_start,y_start);
             fill_surface(number,grid,x_start,y_start);
             x_start += 51;
-            free(number);
+            SDL_FreeSurface(number);
         }
         y_start += 51;
         x_start = 2;

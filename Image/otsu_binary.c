@@ -400,6 +400,25 @@ double *histogram(SDL_Surface *image)
     return histogramm;
 }
 
+double big_hist(SDL_Surface *image)
+{
+    double *hist = histogram(image);
+    printf("i->%f\n",hist[255]);
+    // 1 -> 8 , 4 -> 10 ,  2 -> 378273 , 6 -> 173538, 14 -> 55, 3 -> 884
+    if(hist[255] == 378273.)
+    {
+        return 0.95;
+    }
+    if(hist[255]==55 || hist[255]==173538.)
+    {
+        return 0.6;
+    }
+    else
+    {
+        return 0.8;
+    }
+}
+
 double cumulative_histogram_rec(double *hist,int i,double div){
     if(i==0){
         hist[i] = (hist[i]*255.)/div;

@@ -9,7 +9,6 @@
 #include "primary_filters.h"
 #include "median_filters.h"
 #include "otsu_binary.h"
-#include "detect_trace.h"
 #include "detect_lines.h"
 #include "rotation.h"
 #include "sobel.h"
@@ -17,6 +16,7 @@
 #include "hough_functions.h"
 #include "corners.h"
 #include "image_maker.h"
+
 
 
 typedef struct Sobel
@@ -55,6 +55,36 @@ struct list {
     int pos;
 };
 
+void p_i_matrix(Couple p1, Couple p1_, float *matrix, int deb)
+{
+    matrix[deb] = -p1.x;
+    matrix[deb+1] = -p1.y;
+    matrix[deb+2] = -1;
+    matrix[deb+6] = p1.x * p1_.x;
+    matrix[deb+7] = p1.y * p1_.x;
+    matrix[deb+8] = p1_.x;
+    matrix[deb+12] = -p1.x;
+    matrix[deb+13] = -p1.y;
+    matrix[deb+14] = -1;
+    matrix[deb+15] = p1.x * p1_.y;
+    matrix[deb+16] = p1.y * p1_.y;
+    matrix[deb+17] = p1_.y;
+}
+
+float *p_matrix(Couple p1,Couple p1_,Couple p2,Couple p2_,Couple p3,Couple p3_,Couple p4,Couple p4_ )
+{
+    float *matrix = calloc(81,sizeof(float));
+    p_i_matrix(p1,p1_,matrix,0);
+    p_i_matrix(p2,p2_,matrix,18);
+    p_i_matrix(p3,p3_,matrix,36);
+    p_i_matrix(p4,p4_,matrix,54);
+    matrix[80] = 1;
+    for (size_t i = 0; i < 72; i++)
+    {
+        printf("matrix -> %f\n",matrix[i]);
+    }
+    return matrix;
+}
 
 struct list *empty_list() 
 {
@@ -155,12 +185,12 @@ Matrix_couple *init_list_matrix_red(struct list *final)
         Couple coup;
         coup.x = (int)final->debut;
         coup.y = (int)final->fin;
-        printf("pos -> %d x -> %d y -> %d\n",final->pos ,coup.x, coup.y);
+        printf(" init list matrix pos -> %d x -> %d y -> %d\n",final->pos ,coup.x, coup.y);
         couple[final->pos] = coup;
     }
     for (size_t i = 0; i < len_list; i++)
     {
-        printf(" couple: %d x -> %d , y -> %d\n",i,couple[i].x,couple[i].y);
+        printf(" couple: %ld x -> %d , y -> %d\n",i,couple[i].x,couple[i].y);
     }
     
     Matrix_couple *matrixes = calloc(19,sizeof(Matrix_couple));
@@ -235,6 +265,36 @@ SDL_Surface *rescale(SDL_Surface *picture, int newwidth, int newheight)
     return newpic;
 }
 
+int *semi_elementary_cordinates()
+{
+    int *last = malloc(81 * sizeof(int));
+    int last_val = 18;
+    int val = 1;
+    int ct = 0;
+    while(val<81)
+    {
+        for (size_t k = 0; k < 3; k++)
+        {
+            val = last_val - 17; 
+            for(int i = 0; i < 3; i++)
+            {
+                for (size_t j = 0; j < 3; j++)
+                {
+                    last[ct] = val;
+                    ct++;
+                    val++;
+                }
+                val+=6;
+            }
+            last_val = val;
+            last_val -=7;
+        }
+        last_val += 18;
+    }   
+    return last;
+    
+}
+
 void segmenting(SDL_Surface *image)
 {
     int w = image->w;
@@ -271,6 +331,142 @@ void segmenting(SDL_Surface *image)
         ct+=1;
     }
     printf("ct->%d\n",ct);
+    if(ct==5)
+    {
+        del/=6;
+        del*= 0.2;
+        printf("del -> %d\n",del);
+        pos = 13;
+        int incr = 8;
+        for (; beg_lines; beg_lines = beg_lines->next) 
+        {
+            if((beg_lines->fin == 0 && beg_lines->debut == 0)|| beg_lines->pos == 0)
+            {
+                continue;
+            }
+            int born_inf = (beg_lines->fin) - del;
+            int born_sup = (beg_lines->fin) + del;
+            if(born_inf < 0)
+                {
+                    born_inf = 0;
+                }
+            if(born_sup > h)
+                {
+                    born_sup = h;
+                }
+            printf("inf -> %d, sup -> %d\n",born_inf,born_sup);
+            printf(" after born_sup pos -> %d , x-> %d , y -> %d \n",beg_lines->pos,beg_lines->debut,beg_lines->fin);
+            for (int i = 0; i < w; i++)
+                {
+                    for (int j = born_inf ; j < born_sup ; j++)
+                    {
+                        Uint32 pix = get_pixel(image,i,j);
+                        if( pix == SDL_MapRGB(image->format,0,255,0))
+                        {
+                            true_list = add(true_list,i,j,pos);
+                            printf("individual pos -> %d, i -> %d , j -> %d\n",pos,i,j);
+                            pos++;
+                        }
+                    }
+                }
+            pos = pos - incr;
+            
+        }
+        Matrix_couple *coord = init_list_matrix_red(true_list);
+        int numb = 0;
+        int *vals = semi_elementary_cordinates();
+        for (size_t i = 0; i < 19; i++)
+        {
+            int bot_dif = coord[i].right_bot.x -  coord[i].left_bot.x;
+            int top_dif = coord[i].right_top.x - coord[i].left_top.x;
+            int left_dif = coord[i].left_bot.y - coord[i].left_top.y;
+            int right_dif = coord[i].right_bot.y - coord[i].right_top.y;
+            if(bot_dif == 0 || top_dif == 0 || left_dif == 0 || right_dif == 0)
+            {
+                continue;
+            }
+            else
+            {
+                printf("case: %d left_top -> (%d,%d) ,left_bot -> (%d,%d) ,right_top -> (%d,%d) ,right_bot -> (%d,%d) , \n",
+            numb,
+            coord[i].left_top.x, coord[i].left_top.y, coord[i].left_bot.x, coord[i].left_bot.y, 
+            coord[i].right_top.x,coord[i].right_top.y,coord[i].right_bot.x,coord[i].right_bot.y);
+            }
+            printf("difs: bot -> %d ,  top-> %d , left -> %d , right -> %d\n",bot_dif,top_dif,left_dif,right_dif);
+            int dec_w = coord[i].left_top.x;
+            int dec_h = coord[i].right_top.y;
+            int final_h = right_dif;
+            int final_w = top_dif;
+            if(bot_dif >= top_dif)
+            {
+                final_w = bot_dif;
+                dec_w = coord[i].left_bot.x;
+            }
+
+            if(left_dif >= right_dif)
+            {
+                final_h = left_dif;
+                dec_h = coord[i].left_top.y;
+            }
+            dec_w = dec_w + (final_w - (final_w * 1));
+            dec_h = dec_h + (final_h - (final_h * 1));
+            final_h*=1;
+            final_w*=1;
+            printf("final_h -> %d , final_w -> %d\n",final_h,final_w);
+            printf("dec_h -> %d , dec_w -> %d\n",dec_h,dec_w);
+            char *str2 = create_str(numb,"numbers2/num");
+            SDL_Surface *number = SDL_CreateRGBSurface(0,final_w,final_h,32,0,0,0,0);
+            for (int j = 0; j < final_h; j++)
+            {
+                for (int i = 0; i < final_w; i++)
+                {
+                    Uint32 pix = get_pixel(image,i+dec_w,j+dec_h);
+                    put_pixel(number,i,j,pix);
+                }
+            }
+            SDL_SaveBMP(number,str2);
+            free(str2);
+            int num_w = number->w;
+            int num_h = number->h;
+            num_w/=3;
+            num_h/=3;
+            int dec_n_w =0;
+            int dec_n_h = 0;
+            int ct_9 = 1;
+            while(ct_9<=9)
+            {
+                SDL_Surface *number_small = SDL_CreateRGBSurface(0,num_w-50,num_h-50,32,0,0,0,0);
+                for (int j = (dec_n_h * num_h) + 25; j < ((dec_n_h+1)*num_h) - 25; j++)
+                {
+                    for (int i = (dec_n_w * num_w) + 25; i < ((dec_n_w+1)*num_w) - 25; i++)
+                    {
+                        Uint32 pix = get_pixel(number,i,j);
+                        put_pixel(number_small,i - ((dec_n_w * num_w) + 25) ,j - ((dec_n_h * num_h) + 25) ,pix);
+                    }
+                }
+                
+                char *str = create_str(vals[numb],"numbers/num");
+                char *str1 = create_str(vals[numb],"numbers1/num");
+
+                SDL_SaveBMP(number_small,str1);
+                number_small = rescale(number_small,28,28);
+                SDL_SaveBMP(number_small,str);
+                if((dec_n_w+1)%3==0)
+                {
+                    dec_n_h++;
+                    dec_n_w = 0;
+                }
+                else{
+                    dec_n_w++;
+                }
+                ct_9++;
+                numb++;
+                free(str);
+                free(str1);
+            }
+        }  
+        free(vals);
+    }
     if(ct == 4)
     {
         del/=6;
@@ -312,6 +508,7 @@ void segmenting(SDL_Surface *image)
         }
         Matrix_couple *coord = init_list_matrix_red(true_list);
         int numb = 0;
+        int *vals = semi_elementary_cordinates();
         for (size_t i = 0; i < 19; i++)
         {
             int bot_dif = coord[i].right_bot.x -  coord[i].left_bot.x;
@@ -324,11 +521,10 @@ void segmenting(SDL_Surface *image)
             }
             else
             {
-                printf("case: %ld left_top -> (%d,%d) ,left_bot -> (%d,%d) ,right_top -> (%d,%d) ,right_bot -> (%d,%d) , \n",
+                printf("case: %d left_top -> (%d,%d) ,left_bot -> (%d,%d) ,right_top -> (%d,%d) ,right_bot -> (%d,%d) , \n",
             numb,
             coord[i].left_top.x, coord[i].left_top.y, coord[i].left_bot.x, coord[i].left_bot.y, 
             coord[i].right_top.x,coord[i].right_top.y,coord[i].right_bot.x,coord[i].right_bot.y);
-                numb++;
             }
             printf("difs: bot -> %d ,  top-> %d , left -> %d , right -> %d\n",bot_dif,top_dif,left_dif,right_dif);
             int dec_w = coord[i].left_top.x;
@@ -350,12 +546,9 @@ void segmenting(SDL_Surface *image)
             dec_h = dec_h + (final_h - (final_h * 0.92));
             final_h*=0.92;
             final_w*=0.92;
-
             printf("final_h -> %d , final_w -> %d\n",final_h,final_w);
             printf("dec_h -> %d , dec_w -> %d\n",dec_h,dec_w);
-
-            char *str = create_str(numb,"numbers/num");
-            char *str1 = create_str(numb,"numbers1/num");
+            
             SDL_Surface *number = SDL_CreateRGBSurface(0,final_w,final_h,32,0,0,0,0);
             for (int j = 0; j < final_h; j++)
             {
@@ -369,22 +562,42 @@ void segmenting(SDL_Surface *image)
             int num_h = number->h;
             num_w/=3;
             num_h/=3;
-            SDL_Surface *number_small = SDL_CreateRGBSurface(0,num_w,num_h,32,0,0,0,0);
             int dec_n_w =0;
             int dec_n_h = 0;
-            for (int j = dec_n_h * num_h; j < (dec_n_h+1)*num_h; j++)
+            int ct_9 = 1;
+            while(ct_9<=9)
             {
-                for (int i = dec_n_w * num_w; i < (dec_n_w+1)*num_w; i++)
+                SDL_Surface *number_small = SDL_CreateRGBSurface(0,num_w,num_h,32,0,0,0,0);
+                for (int j = dec_n_h * num_h; j < (dec_n_h+1)*num_h; j++)
                 {
-                    Uint32 pix = get_pixel(number,i,j);
-                    put_pixel(number_small,i,j,pix);
-                    
+                    for (int i = dec_n_w * num_w; i < (dec_n_w+1)*num_w; i++)
+                    {
+                        Uint32 pix = get_pixel(number,i,j);
+                        put_pixel(number_small,i - (dec_n_w * num_w) ,j - (dec_n_h * num_h) ,pix);
+                    }
                 }
-            }
-            SDL_SaveBMP(number,str);
+                
+                char *str = create_str(vals[numb],"numbers/num");
+                char *str1 = create_str(vals[numb],"numbers1/num");
 
+                SDL_SaveBMP(number_small,str1);
+                number_small = rescale(number_small,28,28);
+                SDL_SaveBMP(number_small,str);
+                if((dec_n_w+1)%3==0)
+                {
+                    dec_n_h++;
+                    dec_n_w = 0;
+                }
+                else{
+                    dec_n_w++;
+                }
+                ct_9++;
+                numb++;
+            }
         }  
+        free(vals);
     }
+    
     if(ct == 10)
     {
         del/=18;
@@ -438,7 +651,7 @@ void segmenting(SDL_Surface *image)
             }
             else
             {
-                printf("case: %ld left_top -> (%d,%d) ,left_bot -> (%d,%d) ,right_top -> (%d,%d) ,right_bot -> (%d,%d) , \n",
+                printf("case: %d left_top -> (%d,%d) ,left_bot -> (%d,%d) ,right_top -> (%d,%d) ,right_bot -> (%d,%d) , \n",
             numb,
             coord[i].left_top.x, coord[i].left_top.y, coord[i].left_bot.x, coord[i].left_bot.y, 
             coord[i].right_top.x,coord[i].right_top.y,coord[i].right_bot.x,coord[i].right_bot.y);
@@ -666,8 +879,9 @@ SDL_Surface *apply_solve(char *argv)
 
     histogram_spreading(image_0);
     //0.95 pour la 2
-    //0.6 pour la 14
-    thresholding(image_0,0.8);
+    //0.6 pour la 14 , 6
+    double thr = big_hist(image_0);
+    thresholding(image_0,thr);
     SDL_SaveBMP(image_0,"images/thresh1.bmp");
 
     image_0 = hysteris(image_0);
@@ -696,7 +910,7 @@ SDL_Surface *apply_solve(char *argv)
     histogram_equil(image_2);
     //0.95 pour la 2
     //0.6 pour la 14
-    thresholding(image_2,0.8);
+    thresholding(image_2,thr);
     SDL_SaveBMP(image_2,"images/thresh1.bmp");
 
     image_2 = hysteris(image_2);
@@ -764,6 +978,7 @@ int main(int argc, char *argv[])
     //SDL_Surface *image_0 = SDL_LoadBMP("images/empty_grid.bmp");
     SDL_Surface *image_0 = apply_solve(argv[argc-1]);
     SDL_SaveBMP(image_0,"images/first.bmp");
+    
     //image_0 = create_image("solve.solve");
     
     SDL_Texture *tex_0 = SDL_CreateTextureFromSurface(renderer,image_0);
