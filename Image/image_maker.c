@@ -73,7 +73,6 @@ SDL_Surface *create_image(char *path)
     free(matrix);
     blue(grid);
     grey_scale(grid);
-    SDL_SaveBMP(grid,"images/result.bmp");
     return grid;
 }
 

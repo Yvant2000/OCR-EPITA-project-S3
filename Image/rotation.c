@@ -173,8 +173,8 @@ SDL_Surface *trim(SDL_Surface *image)
         printf("Failed to init -> %s\n",SDL_GetError());
         return image;
     }
-    printf("new_width -> %d\n",(int)(w-(right_trim-left_trim)));
-    printf("new_height -> %d\n", (int)(h - (top_trim-bottom_trim)));
+    //printf("new_width -> %d\n",(int)(w-(right_trim-left_trim)));
+    //printf("new_height -> %d\n", (int)(h - (top_trim-bottom_trim)));
     for (size_t i = left_trim; i < right_trim; i++)
     {
         for (size_t j = bottom_trim; j < top_trim; j++)
@@ -223,7 +223,7 @@ SDL_Surface *rotate(SDL_Surface *image, double angle)
     if(angle == -1){
         return image;
     }
-    printf("angle -> %f\n",angle);
+    //printf("angle -> %f\n",angle);
     angle = 3.14159265358979323846/2 - angle;
     
     double cosine = cos(angle);

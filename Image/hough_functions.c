@@ -1,28 +1,22 @@
 #include <stdio.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <libgen.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "basic_pixel.h"
 #include <math.h>
 #include "rotation.h"
 
-const double  M_PI =  3.14159265358979323846;
-
-
+const double M_PI = 3.14159265358979323846;
+#define PATH_MAX        4096	/* # chars in a path name including nul */
 
 typedef struct Triple
 {
     double theta;
     double ro;
     int occurence;
-    int x;
-    int y;
 } Triple;
-
-typedef struct Rotated
-{
-    SDL_Surface *image_output;
-    double theta;
-} Rotated;
 
 SDL_Surface *trim_green(SDL_Surface *image, SDL_Surface *cleaned)
 {
@@ -33,7 +27,7 @@ SDL_Surface *trim_green(SDL_Surface *image, SDL_Surface *cleaned)
     size_t right_trim = 0;
     size_t left_trim = 0;
     int done = 0;
-    for (size_t j = h-1; j > 0; j--)
+    for (size_t j = h - 1; j > 0; j--)
     {
         for (size_t i = 0; i < w; i++)
         { //printf("bottom i -> %zu , j -> %zu\n",i,j);
@@ -42,12 +36,12 @@ SDL_Surface *trim_green(SDL_Surface *image, SDL_Surface *cleaned)
             if (pix == SDL_MapRGB(image->format, 0, 255, 0))
             {
                 //trim here on the bottom
-                bottom_trim = j+1;
+                bottom_trim = j + 1;
                 done = 1;
                 break;
             }
         }
-        if(done)
+        if (done)
         {
             break;
         }
@@ -62,12 +56,12 @@ SDL_Surface *trim_green(SDL_Surface *image, SDL_Surface *cleaned)
             if (pix == SDL_MapRGB(image->format, 0, 255, 0))
             {
                 //trim here on the top
-                top_trim = j-1;
+                top_trim = j - 1;
                 done = 1;
                 break;
             }
         }
-        if(done)
+        if (done)
         {
             break;
         }
@@ -82,18 +76,18 @@ SDL_Surface *trim_green(SDL_Surface *image, SDL_Surface *cleaned)
             if (pix == SDL_MapRGB(image->format, 0, 255, 0))
             {
                 //trim here on the right
-                left_trim =  i-1;
+                left_trim = i - 1;
                 done = 1;
                 break;
             }
         }
-        if(done)
+        if (done)
         {
             break;
         }
     }
     done = 0;
-    for (size_t i = w-1; i > 0; i--)
+    for (size_t i = w - 1; i > 0; i--)
     {
         for (size_t j = top_trim; j < bottom_trim; j++)
         { //printf("left i -> %zu , j -> %zu\n",i,j);
@@ -102,36 +96,31 @@ SDL_Surface *trim_green(SDL_Surface *image, SDL_Surface *cleaned)
             if (pix == SDL_MapRGB(image->format, 0, 255, 0))
             {
                 //trim here on the left
-                right_trim =  i+1;
+                right_trim = i + 1;
                 done = 1;
                 break;
             }
         }
-        if(done)
+        if (done)
         {
             break;
         }
     }
-    printf("bot -> %zu\n",bottom_trim);
-    printf("top -> %zu\n",top_trim);
-    printf("left -> %zu\n",left_trim);
-    printf("right -> %zu\n",right_trim);
-    SDL_Surface *output_image = SDL_CreateRGBSurface(0, (int)(right_trim - left_trim),(int)(bottom_trim - top_trim), 32, 0,0,0,0);
-    printf("new_width -> %d\n",(int)(right_trim - left_trim));
-    printf("new_height -> %d\n", (int)(bottom_trim - top_trim));
+    SDL_Surface *output_image = SDL_CreateRGBSurface(0, (int)(right_trim - left_trim), (int)(bottom_trim - top_trim), 32, 0, 0, 0, 0);
     for (size_t i = left_trim; i < right_trim; i++)
     {
         for (size_t j = top_trim; j < bottom_trim; j++)
         {
             Uint32 pix = get_pixel(cleaned, i, j);
-            put_pixel(output_image,(int)(i-left_trim),(int)(j-top_trim),pix);
+            put_pixel(output_image, (int)(i - left_trim), (int)(j - top_trim), pix);
         }
     }
+    SDL_FreeSurface(cleaned);
     SDL_FreeSurface(image);
     return output_image;
 }
 
-SDL_Surface *hough_alligned(SDL_Surface *image,double thresh)
+void hough_alligned(SDL_Surface *image, double thresh)
 {
     int w = image->w;
     int h = image->h;
@@ -170,8 +159,6 @@ SDL_Surface *hough_alligned(SDL_Surface *image,double thresh)
                     couple_list[index_hough].occurence = new_pix;
                     couple_list[index_hough].ro = ro;
                     couple_list[index_hough].theta = current_theta;
-                    couple_list[index_hough].x = x;
-                    couple_list[index_hough].y = y;
                     if (biggest_pix < new_pix)
                     {
                         biggest_pix = new_pix;
@@ -184,7 +171,7 @@ SDL_Surface *hough_alligned(SDL_Surface *image,double thresh)
     double new_theta = 0.;
     for (int i = 0; i < parcours; i++)
     {
-        if (couple_list[i].occurence >= biggest_pix*thresh)
+        if (couple_list[i].occurence >= biggest_pix * thresh)
         {
             if (new_theta != couple_list[i].theta)
             {
@@ -194,7 +181,7 @@ SDL_Surface *hough_alligned(SDL_Surface *image,double thresh)
             {
                 for (double x = 1; x < w - 1; x++)
                 {
-                    double y = (couple_list[i].ro - x*cos(couple_list[i].theta))/sin(couple_list[i].theta);
+                    double y = (couple_list[i].ro - x * cos(couple_list[i].theta)) / sin(couple_list[i].theta);
                     Uint32 pix = SDL_MapRGB(image->format, 255, 0, 0);
                     if (y > 0. && y < h)
                     {
@@ -206,10 +193,9 @@ SDL_Surface *hough_alligned(SDL_Surface *image,double thresh)
     }
     free(couple_list);
     free(hough_tr);
-    return image;
 }
 
-SDL_Surface *hough_alligned_color(SDL_Surface *image)
+void hough_alligned_color(SDL_Surface *image)
 {
     int w = image->w;
     int h = image->h;
@@ -248,8 +234,6 @@ SDL_Surface *hough_alligned_color(SDL_Surface *image)
                     couple_list[index_hough].occurence = new_pix;
                     couple_list[index_hough].ro = ro;
                     couple_list[index_hough].theta = current_theta;
-                    couple_list[index_hough].x = x;
-                    couple_list[index_hough].y = y;
                     if (biggest_pix < new_pix)
                     {
                         biggest_pix = new_pix;
@@ -258,11 +242,12 @@ SDL_Surface *hough_alligned_color(SDL_Surface *image)
             }
         }
     }
+    free(hough_tr);
     free(thetas);
     double new_theta = 0.;
     for (int i = 0; i < parcours; i++)
     {
-        if (couple_list[i].occurence >= biggest_pix*0.4)
+        if (couple_list[i].occurence >= biggest_pix * 0.4)
         {
             if (new_theta != couple_list[i].theta)
             {
@@ -272,12 +257,13 @@ SDL_Surface *hough_alligned_color(SDL_Surface *image)
             {
                 for (double x = 1; x < w - 1; x++)
                 {
-                    double y = (couple_list[i].ro - x*cos(couple_list[i].theta))/sin(couple_list[i].theta);
+                    double y = (couple_list[i].ro - x * cos(couple_list[i].theta)) / sin(couple_list[i].theta);
                     Uint32 pix = SDL_MapRGB(image->format, 254, 0, 0);
                     if (y > 0. && y < h)
                     {
-                        Uint32 pixel = get_pixel(image,x,y);
-                        if(pixel ==  SDL_MapRGB(image->format, 255, 0, 0))
+
+                        Uint32 pixel = get_pixel(image, x, y);
+                        if (pixel == SDL_MapRGB(image->format, 255, 0, 0))
                         {
                             Uint32 pix = SDL_MapRGB(image->format, 0, 255, 0);
                             put_pixel(image, (int)x, (int)y, pix);
@@ -292,8 +278,6 @@ SDL_Surface *hough_alligned_color(SDL_Surface *image)
         }
     }
     free(couple_list);
-    free(hough_tr);
-    return image;
 }
 
 double my_abs1(double value)
@@ -309,15 +293,13 @@ double my_abs1(double value)
     }
 }
 
-SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned)
+SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned, char colour[PATH_MAX], char rot[PATH_MAX])
 {
     int w = image->w;
     int h = image->h;
     //the screen diagonal max_dist
     int max_dist = (int)(round(sqrt(w * w + h * h)));
-    printf("max_dist -> %d\n", max_dist);
     size_t parcours = 2 * max_dist * 181;
-    Rotated *image_theta = malloc(sizeof(Rotated));
     Triple *couple_list = malloc(parcours * sizeof(Triple));
     double *hough_tr = calloc(parcours,sizeof(double));
     //degree values from -90 to 90 converted to radians
@@ -352,8 +334,6 @@ SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned)
                     couple_list[index_hough].occurence = new_pix_occurence;
                     couple_list[index_hough].ro = ro;
                     couple_list[index_hough].theta = current_theta;
-                    couple_list[index_hough].x = x;
-                    couple_list[index_hough].y = y;
                     //finds the biggest occurence of a certain pixel and it's theta
                     if (biggest_pix_occurence < new_pix_occurence)
                     {
@@ -363,6 +343,7 @@ SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned)
             }
         }
     }
+    free(hough_tr);
     //We no longer need the theta in radians
     free(thetas);
     //int bornes = max_dist/2 ;
@@ -398,7 +379,7 @@ SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned)
             z++;
         }
     }
-
+    free(couple_list);
     Triple *grouped = malloc(sizeof(Triple) * (theta_numbers + 1));
     for (int i = 0; i < theta_numbers; i++)
     {
@@ -437,49 +418,34 @@ SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned)
             grouped[ind].ro = reduced_couple_list[i].ro;
         }
     }
-
-
-    
-    for (int i = 0; i < theta_numbers; i++)
-    {
-        if(grouped[i].theta!=0.){
-        }
-    }
+    free(reduced_couple_list);
     if ((grouped[biggest_theta_occurence].theta < 1.65 && grouped[biggest_theta_occurence].theta > 1.45) || grouped[biggest_theta_occurence].theta == 0)
     {
-       printf("The sudoku is alligned\n");
-        image = hough_alligned(image,0.4);
+        free(grouped);
+        hough_alligned(image,0.4);
         image = rotation_90(image);
-        image = hough_alligned_color(image);
+        hough_alligned_color(image);
         image = rotation_270(image);
-        SDL_SaveBMP(image,"images/coloured.bmp");
-        SDL_SaveBMP(cleaned,"images/rotated.bmp");
+        SDL_SaveBMP(image,colour);
+        SDL_SaveBMP(cleaned,rot);
         image = trim_green(image,cleaned);
-        image_theta->image_output = image;
-        image_theta->theta = -1;
+        return image;
     }
     else
     {
 	    image = rotate(image, grouped[biggest_theta_occurence].theta);
-        SDL_SaveBMP(image,"images/rotated_sobel.bmp");
-        image = hough_alligned(image,0.4);
+        hough_alligned(image,0.4);
         image = rotation_90(image);
-        image = hough_alligned_color(image);
+        hough_alligned_color(image);
         image = rotation_270(image);
-        SDL_SaveBMP(image,"images/coloured.bmp");
+        SDL_SaveBMP(image,colour);
         cleaned = rotate(cleaned,grouped[biggest_theta_occurence].theta);
-        SDL_SaveBMP(cleaned,"images/rotated.bmp");
+        free(grouped);
+        SDL_SaveBMP(cleaned,rot);
         image = trim_green(image,cleaned);
-        SDL_SaveBMP(image,"images/trimmed.bmp");
-        image_theta->image_output = image;
-        image_theta->theta = -1;
+        return image;
     }
-    free(grouped);
-    free(reduced_couple_list);
-    free(couple_list);
-    free(hough_tr);
-    //free(strait_angle);
-    return image_theta->image_output;
+
 }
 
 

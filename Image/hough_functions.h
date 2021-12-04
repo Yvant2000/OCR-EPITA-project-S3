@@ -4,13 +4,8 @@
 
 #ifndef HOUGH_FUNCTIONS_H
 #define HOUGH_FUNCTIONS_H
-typedef struct Rotated
-{
-    SDL_Surface *image_output;
-    double theta;
-} Rotated;
 
-SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned);
-SDL_Surface *hough_alligned(SDL_Surface *image,double thresh);
+SDL_Surface *hough_transform(SDL_Surface *image,SDL_Surface *cleaned, char colour[PATH_MAX], char rot[PATH_MAX]);
+void hough_alligned(SDL_Surface *image,double thresh);
 
 #endif
