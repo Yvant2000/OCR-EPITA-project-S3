@@ -37,20 +37,20 @@ def create_data() -> None:
         image.save(join('data', f'{font_name}_0.bmp'))
 
         for digit in digit_list:  # digit: int
-            for deca_x, deca_y, shift_name in (
-                    (-3, 0, "left"),
-                    (3, 0, "right"),
-                    (0, -3, "up"),
-                    (0, 3, "down"),
-                    (0, 0, "middle"),
-            ):
+            # for deca_x, deca_y, shift_name in (
+            #         (-3, 0, "left"),
+            #         (3, 0, "right"),
+            #         (0, -3, "up"),
+            #         (0, 3, "down"),
+            #         (0, 0, "middle"),
+            # ):
                 image = Image.new('RGB', image_dims, color=background_color)
                 draw: Draw = Draw(image)
                 text_size: Tuple[int, int] = font.getsize(digit)
-                text_pos: Tuple[int, int] = (image_dims[0] - text_size[0]) // 2 + deca_x, (image_dims[1] - text_size[1]) // 2 - 3 + deca_y
+                text_pos: Tuple[int, int] = (image_dims[0] - text_size[0]) // 2, (image_dims[1] - text_size[1]) // 2 - 3
                 draw.text(text_pos, digit, text_color, font=font)
                 image = image.point(lambda pixel: pixel > 240 and 255)
-                image.save(join('data', f'{font_name}_{shift_name}_{digit}.bmp'))
+                image.save(join('data', f'{font_name}_{digit}.bmp'))
 
 
 if __name__ == "__main__":
