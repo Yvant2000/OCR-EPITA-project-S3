@@ -272,6 +272,10 @@ void set_boundaries(SDL_Surface *image, double boundaries[8])
     boundaries[5] = border_bot_left[1];
     boundaries[6] = border_bot_right[0];
     boundaries[7] = border_bot_right[1];
+    free(border_bot_left);
+    free(border_bot_right);
+    free(border_top_left);
+    free(border_top_right);
 }
 
 void change_base(double boundaries[8], int h)

@@ -266,15 +266,6 @@ SDL_Surface *rescale(SDL_Surface *picture, int newwidth, int newheight)
 #endif
 
     SDL_Surface *newpic = SDL_CreateRGBSurface(0, newwidth, newheight, 32, rmask, gmask, bmask, amask);
-    SDL_Rect srcrect, dstrect;
-    srcrect.x = 0;
-    srcrect.y = 0;
-    srcrect.w = picture->w;
-    srcrect.h = picture->h;
-    dstrect.x = 0;
-    dstrect.y = 0;
-    dstrect.w = newwidth;
-    dstrect.h = newheight;
     for (int i = 0; i < newwidth; i++)
     {
         for (int j = 0; j < newheight; j++)
@@ -325,7 +316,9 @@ void segmenting(SDL_Surface *image,char *absolute_path)
     int h = image->h;
     int pos = 0;
     int del = 0;
+    
     struct list *beg_lines = init_list(0, 0, 0);
+    struct list *save_beg = beg_lines;
     struct list *borned = init_list(0, 0, 0);
     struct list *true_list = init_list(0, 0, 0);
     for (int j = 0; j < h; j++)
@@ -341,6 +334,7 @@ void segmenting(SDL_Surface *image,char *absolute_path)
             }
         }
     }
+    struct list *save = borned;
     int st = borned->fin;
     borned = borned->next;
     int ct = 1;
@@ -354,6 +348,7 @@ void segmenting(SDL_Surface *image,char *absolute_path)
         st = borned->fin;
         ct += 1;
     }
+    free_list(save);
     //printf("ct->%d\n", ct);
     if (ct == 5)
     {
@@ -395,7 +390,9 @@ void segmenting(SDL_Surface *image,char *absolute_path)
             }
             pos = pos - incr;
         }
+        free_list(save_beg);
         Matrix_couple *coord = init_list_matrix_red(true_list);
+        free_list(true_list);
         int numb = 0;
         int *vals = semi_elementary_cordinates();
         for (size_t i = 0; i < 19; i++)
@@ -528,7 +525,9 @@ void segmenting(SDL_Surface *image,char *absolute_path)
             }
             pos = pos - incr;
         }
+        free_list(save_beg);
         Matrix_couple *coord = init_list_matrix_red(true_list);
+        free_list(true_list);
         int numb = 0;
         int *vals = semi_elementary_cordinates();
         for (size_t i = 0; i < 19; i++)
@@ -662,7 +661,9 @@ void segmenting(SDL_Surface *image,char *absolute_path)
             }
             pos = pos - incr;
         }
+        free_list(save_beg);
         Matrix_couple *coord = init_list_matrix(true_list);
+        free_list(true_list);
         int numb = 0;
         for (size_t i = 0; i < 90; i++)
         {
@@ -896,28 +897,29 @@ void apply_solve(char *argv)
     char gauss[PATH_MAX];
     save_in_dir(main_dir,"/gauss.bmp",gauss);
     SDL_SaveBMP(image_0, gauss);
-
+    
     histogram_equil(image_0);
     histogram_spreading(image_0);
     double thr = big_hist(image_0);
     thresholding(image_0, thr);
 
     image_0 = hysteris(image_0);
-
+    
     image_0 = sobel(image_0);
 
     histogram_equil(image_0);
-
+    
     char coloured[PATH_MAX];
     save_in_dir(main_dir,"/coloured.bmp",coloured);
 
     char rot[PATH_MAX];
     save_in_dir(main_dir,"/rot.bmp",rot);
-
+    
+    
     image_0 = hough_transform(image_0, image_2,coloured,rot);
-    SDL_Surface *image_1 = SDL_LoadBMP(coloured);
     image_2 = SDL_LoadBMP(rot);
-
+    
+    
     grey_scale(image_2);
     image_2 = gaussian_blur(image_2);
 
@@ -932,16 +934,23 @@ void apply_solve(char *argv)
     save_in_dir(main_dir,"/hyst.bmp",hyst);
 
     SDL_SaveBMP(image_2, hyst);
+    SDL_Surface *image_1 = SDL_LoadBMP(coloured);
+
     image_0 = crop_the_image(image_2, image_1);
+    
     image_0 = sobel(image_0);
 
     histogram_equil(image_0);
     image_2 = SDL_LoadBMP(hyst);
+
+    
+    
     image_0 = hough_transform(image_0, image_2,coloured,rot);
 
     char hysteris_save[PATH_MAX];
     save_in_dir(main_dir,"/hysteris.bmp",hysteris_save);
 
+    
     SDL_SaveBMP(image_0, hysteris_save);
     image_3 = SDL_LoadBMP(hysteris_save);
     SDL_Surface *image_4 = SDL_LoadBMP(hysteris_save);
@@ -973,4 +982,5 @@ void apply_solve(char *argv)
     convolve_normal(image_4, image_5);
     segmenting(image_5,argv);
     SDL_FreeSurface(image_5);
+    
 }
