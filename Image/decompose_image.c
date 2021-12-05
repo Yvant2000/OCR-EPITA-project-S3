@@ -4,9 +4,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <err.h>
+#include <dirent.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <sys/stat.h>
 #include <string.h>
 #include "kernel.h"
 #include "primary_filters.h"
@@ -887,6 +889,10 @@ void apply_solve(char *argv)
 {
     char main_dir[PATH_MAX];
     directory(argv,main_dir);
+    DIR *dir = opendir(main_dir);
+    int dfd = dirfd(dir);
+    mkdirat(dfd,"numbers",S_IRWXU);
+
     SDL_Surface *image_0 = SDL_LoadBMP(argv);
     SDL_Surface *image_3 = SDL_LoadBMP(argv);
     SDL_Surface *image_2 = SDL_LoadBMP(argv);
@@ -932,7 +938,6 @@ void apply_solve(char *argv)
 
     char hyst[PATH_MAX];
     save_in_dir(main_dir,"/hyst.bmp",hyst);
-
     SDL_SaveBMP(image_2, hyst);
     SDL_Surface *image_1 = SDL_LoadBMP(coloured);
 

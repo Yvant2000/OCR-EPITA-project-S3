@@ -87,7 +87,6 @@ void write_to_file(char *file_name, int *grid)
                 k++;
             }
             char c = grid[(i * 9) + j] + '0';
-
             line[k] = c;
             k++;
         }
@@ -100,7 +99,6 @@ void write_to_file(char *file_name, int *grid)
             fputc('\n',fp);
         }
     }
-
     fclose(fp);
 }
 

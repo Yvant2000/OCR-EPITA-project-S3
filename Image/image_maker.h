@@ -6,6 +6,6 @@
 #ifndef IMAGE_MAKER_H
 #define IMAGE_MAKER_H
 
-SDL_Surface *create_image(char *path);
+void create_image(char *path, char *save);
 
 #endif

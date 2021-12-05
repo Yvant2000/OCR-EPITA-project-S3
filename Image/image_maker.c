@@ -50,7 +50,7 @@ void blue(SDL_Surface *grid)
     }
 }
 
-SDL_Surface *create_image(char *path)
+void create_image(char *path,char *save)
 {
     SDL_Surface *grid = SDL_CreateRGBSurface(0, 461, 461, 32, 0, 0, 0, 0);
     int *matrix = malloc(sizeof(int) * 81);
@@ -73,6 +73,6 @@ SDL_Surface *create_image(char *path)
     free(matrix);
     blue(grid);
     grey_scale(grid);
-    return grid;
+    SDL_SaveBMP(grid,save);
 }
 
