@@ -5,6 +5,6 @@
 #ifndef OCR_EPITA_PROJECT_S3_OCR_H
 #define OCR_EPITA_PROJECT_S3_OCR_H
 
-void solve_image(const char *path);
+void solve_image(char *path);
 
 #endif //OCR_EPITA_PROJECT_S3_OCR_H

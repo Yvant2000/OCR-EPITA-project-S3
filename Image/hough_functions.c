@@ -8,7 +8,7 @@
 #include <math.h>
 #include "rotation.h"
 
-const double M_PI = 3.14159265358979323846;
+// const double M_PI = 3.14159265358979323846;
 #define PATH_MAX        4096	/* # chars in a path name including nul */
 
 typedef struct Triple

@@ -49,11 +49,11 @@ int main(){
 
 /////////// USAGE OF TRAINED NEURAL NETWORK
 //
-//    const char path[] = "./ImageDataBase/numbers/num16.bmp";
+//    const char path[] = "./ImageDataBase/numbers/file_name.bmp";
 //    printf("%d \n", image_to_digit(network, path));
-//    double * result = image_to_recognized_array(network, path);
-//    for(char index = 0; index < 10; index++) printf("%lf ", result[index]);printf("\n");
-//    free(result);
+//    //double * result = image_to_recognized_array(network, path);
+//    //for(char index = 0; index < 10; index++) printf("%lf ", result[index]);printf("\n");
+//    //free(result);
 //
 /////////////////
 
