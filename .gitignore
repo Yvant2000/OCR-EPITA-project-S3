@@ -5,3 +5,8 @@ cmake-build-debug/
 main
 .vscode/
 NeuralNetwork/ImageDataBase/data/
+coloured.bmp
+gauss.bmp
+hyst.bmp
+hysteris.bmp
+rot.bmp

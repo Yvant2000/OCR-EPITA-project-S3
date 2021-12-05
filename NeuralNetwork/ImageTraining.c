@@ -104,7 +104,8 @@ static inline int get_max_output(double * output_data)
 }
 void test_network_image(Network * network)
 {
-    const char path[] = "./ImageDataBase/data/";
+    //const char path[] = "./ImageDataBase/data/";
+    const char path[] = "./ImageDataBase/numbers_train/";
 
     int image_count = count_files_in_directory(path);
 
@@ -129,8 +130,10 @@ void test_network_image(Network * network)
         int result = get_max_output(test_output);
         int expected_output = get_max_output(test_expected);
         //printf("Got %d and expected %d\n", result, expected_output);
-        score += result == expected_output;
-        // printf("result %d\n", result);
+        if (result == expected_output)
+            score++;
+        else
+            printf("result %d  but expected %d\n", result, expected_output);
         free(test_output);
     }
     printf("Score %d / %d\n", score, image_count);
@@ -145,7 +148,8 @@ void test_network_image(Network * network)
 }
 
 void infinite_train(Network * network, const char * save_path){
-    const char path[] = "./ImageDataBase/data/";
+    //const char path[] = "./ImageDataBase/data/";
+    const char path[] = "./ImageDataBase/numbers_train/";
 
     int image_count = count_files_in_directory(path);
     double ** input_data = malloc(sizeof (double*) * image_count);
@@ -157,8 +161,8 @@ void infinite_train(Network * network, const char * save_path){
         train_neural_network(network, input_data,
                              output_data,
                              image_count,
-                             100,
-                             0.4);
+                             1000,
+                             0.2);
         printf("Saving... Don't quit...\n");
         save_network(network, save_path);
         printf("Saved.\n");

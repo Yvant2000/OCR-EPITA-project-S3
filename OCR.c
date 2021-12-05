@@ -9,11 +9,10 @@
 
 #include "Image/decompose_image.h"
 #include "NeuralNetwork/Network.h"
-#include "NeuralNetwork/NetworkTraining.h"
 #include "NeuralNetwork/ImageTraining.h"
 #include "Solver/sudoku_res.h"
 
-void solve_image(char * path)
+void solve_image(char * path, char * output)
 {
     apply_solve(path);
 
@@ -27,7 +26,7 @@ void solve_image(char * path)
         char folder_path[PATH_MAX];
         strcpy(folder_path, dirname(real_path));
         strcat(folder_path, "/numbers/num");
-        char number_str[3];
+        char number_str[4];
         sprintf(number_str, i < 10 ? "0%d" : "%d", i);
         strcat(folder_path, number_str);
         strcat(folder_path, ".bmp");
@@ -35,10 +34,13 @@ void solve_image(char * path)
         int result = image_to_digit(network, folder_path);
         sudoku[i - 1] = result;
     }
-    char grid_name[] = "grid0.txt";
-    write_to_file(grid_name, sudoku);
-    int * matrix = parse_file(grid_name);
+    write_to_file(output, sudoku);
+    int * matrix = parse_file(output);
+    char solved_path[PATH_MAX];
+    strcpy(solved_path, output);
+    strcat(solved_path, "_solved");
     int solved[81];
-    solve_1(matrix, solved, "grid0_solved.txt");
+    solve_1(matrix, solved, solved_path);
     return;
 }
+
