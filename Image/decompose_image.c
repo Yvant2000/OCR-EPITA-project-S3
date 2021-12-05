@@ -277,6 +277,7 @@ SDL_Surface *rescale(SDL_Surface *picture, int newwidth, int newheight)
             set_pixel(newpic, i, j, get_pixel(picture, x, y));
         }
     }
+    SDL_free(picture);
     return newpic;
 }
 

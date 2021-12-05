@@ -11,6 +11,7 @@
 #include "NeuralNetwork/Network.h"
 #include "NeuralNetwork/ImageTraining.h"
 #include "Solver/sudoku_res.h"
+#include "Image/image_maker.h"
 
 void solve_image(char * path, char * output)
 {
@@ -36,11 +37,21 @@ void solve_image(char * path, char * output)
     }
     write_to_file(output, sudoku);
     int * matrix = parse_file(output);
+
     char solved_path[PATH_MAX];
     strcpy(solved_path, output);
     strcat(solved_path, "_solved");
     int solved[81];
     solve_1(matrix, solved, solved_path);
+
+    char solved_image[PATH_MAX];
+    strcpy(solved_image, output);
+    strcat(solved_image, "_solved.bmp");
+
+    create_image(solved_path, solved_image);
+
+    delete_network(network);
+    free(matrix);
     return;
 }
 

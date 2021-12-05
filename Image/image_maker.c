@@ -7,17 +7,17 @@
 #include "sudoku_res.h"
 #include "primary_filters.h"
 
-static char numbers[9][19] = 
+static char numbers[9][25] =
 {
-    "grid_numbers/1.bmp",
-    "grid_numbers/2.bmp",
-    "grid_numbers/3.bmp",
-    "grid_numbers/4.bmp",
-    "grid_numbers/5.bmp",
-    "grid_numbers/6.bmp",
-    "grid_numbers/7.bmp",
-    "grid_numbers/8.bmp",
-    "grid_numbers/9.bmp",
+    "Image/grid_numbers/1.bmp",
+    "Image/grid_numbers/2.bmp",
+    "Image/grid_numbers/3.bmp",
+    "Image/grid_numbers/4.bmp",
+    "Image/grid_numbers/5.bmp",
+    "Image/grid_numbers/6.bmp",
+    "Image/grid_numbers/7.bmp",
+    "Image/grid_numbers/8.bmp",
+    "Image/grid_numbers/9.bmp",
 };
 
 void fill_surface(SDL_Surface *number,SDL_Surface *grid, int x_start, int y_start)
@@ -63,6 +63,10 @@ void create_image(char *path,char *save)
         {
             int num = matrix[(i * 9) + j];
             SDL_Surface *number = SDL_LoadBMP(numbers[num-1]);
+            if (number == NULL) {
+                printf("can't lod %s\n", numbers[num - 1]);
+                exit(1);
+            }
             fill_surface(number,grid,x_start,y_start);
             x_start += 51;
             SDL_FreeSurface(number);
