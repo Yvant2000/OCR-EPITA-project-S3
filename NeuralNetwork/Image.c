@@ -22,7 +22,7 @@ static inline Uint8* pixel_ref(SDL_Surface *surf, unsigned x, unsigned y)
     return (Uint8*)surf->pixels + y * surf->pitch + x * bpp;
 }
 
-Uint32 get_pixel(SDL_Surface *surface, unsigned x, unsigned y)
+static inline Uint32 get_pixel(SDL_Surface *surface, unsigned x, unsigned y)
 {
     Uint8 *p = pixel_ref(surface, x, y);
 

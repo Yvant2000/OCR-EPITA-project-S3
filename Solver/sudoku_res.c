@@ -89,7 +89,8 @@ void write_to_file(char *file_name, int *grid)
                 line[k] = c;
                 k++;
             }
-            char c = grid[(i * 9) + j] + '0';
+            int digit = grid[(i * 9) + j];
+            char c = digit ? (digit + '0') : '.';
 
             line[k] = c;
             k++;
@@ -162,6 +163,7 @@ void solve_1(int *grid, int *coppy, char *solved)
             }
         }
     }
+
     for (size_t i = 0; i < 81; i++)
     {
         coppy[i] = grid[i];
